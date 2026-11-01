@@ -1,0 +1,21 @@
+<root>
+    <scripts>
+        <!-- Included JS script files go here -->
+        <include src="file://{resources}/scripts/{addon}/common/common.js" />
+        <include src="file://{resources}/scripts/{addon}/panorama/tile.js" />
+    </scripts>
+
+    <styles>
+        <!-- Included css style files go here -->
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="file://{resources}/styles/{addon}/monopolis.css" />
+    </styles>
+
+    <Panel class="MainSpace" hittest="false">
+        <Panel id="ExampleSpace">
+            <Label id="SpaceName" text="#tile_chance" />
+
+            <Image id="Image" src="s2r://materials/particle/team/team_coach.vtex"/>
+        </Panel>
+    </Panel>
+</root>

@@ -1,0 +1,110 @@
+#PropertyManagement {
+    vertical-align: center;
+    horizontal-align: right;
+
+    width: 540px;
+
+    flow-children: down;
+
+    background-color: black;
+}
+
+.PropertyManagementRow {
+    flow-children: right;
+}
+
+#PropertyColour {
+    width: 35px;
+    height: 35px;
+}
+
+#PropertyName {
+    width: 300px;
+    font-size: 30;
+}
+#PropertyStatus {
+    width: 120px;
+    font-size: 25;
+    text-align: center;
+    vertical-align: center;
+    text-overflow: clip;
+}
+
+#BuyHouse {
+    horizontal-align: right;
+    background-color: green;
+}
+#SellHouse {
+    horizontal-align: right;
+    background-color: red;
+}
+
+#BuyHouse,
+#SellHouse {
+    border-width: 1px;
+    border-color: grey;
+    border-style: solid;
+    width: 35px;
+    height: 35px;
+}
+#BuyHouse Label,
+#SellHouse Label {
+    horizontal-align: center;
+    vertical-align: center;
+}
+
+
+.Owner_-1,
+.Owner_0,
+.Owner_1,
+.Owner_2,
+.Owner_3,
+.Owner_4,
+.Owner_5 {
+    visibility: collapse;
+}
+
+.Turn_0 .Owner_0,
+.Turn_1 .Owner_1,
+.Turn_2 .Owner_2,
+.Turn_3 .Owner_3,
+.Turn_4 .Owner_4,
+.Turn_5 .Owner_5 {
+    visibility: visible;
+}
+
+
+
+#PropertyColour.brown {
+    background-color: brown;
+}
+#PropertyColour.teal {
+    background-color: cyan;
+}
+#PropertyColour.magenta {
+    background-color: magenta;
+}
+#PropertyColour.orange {
+    background-color: orange;
+}
+#PropertyColour.red {
+    background-color: red;
+}
+#PropertyColour.yellow {
+    background-color: yellow;
+}
+#PropertyColour.green {
+    background-color: green;
+}
+#PropertyColour.blue {
+    background-color: blue;
+}
+#PropertyColour.black {
+    background-color: black;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+}
+#PropertyColour.white {
+    background-color: white;
+}

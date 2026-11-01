@@ -1,0 +1,13 @@
+<root>
+    <styles>
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="s2r://panorama/styles/in_world_hideout_panel.vcss" />
+        <include src="file://{resources}/styles/{addon}/monopolis.css"/>
+    </styles>
+    <scripts>
+        <include src="file://{resources}/scripts/{addon}/common/common.js"/>
+        <include src="file://{resources}/scripts/{addon}/panorama/sinz_worldpanel_bootstrap.js"/>
+    </scripts>
+    <Panel class="WindowRoot" hittest="false">
+    </Panel>
+</root>

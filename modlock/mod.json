@@ -1,0 +1,8 @@
+{
+  "slug": "monopolis-deadlock",
+  "name": "monopolis-deadlock",
+  "version": "0.1.0",
+  "language": "LANGUAGE_TYPESCRIPT",
+  "entry": "src/server/main.ts",
+  "map": "test"
+}

@@ -1,0 +1,29 @@
+<root>
+    <scripts>
+        <!-- Included JS script files go here -->
+        <include src="file://{resources}/scripts/{addon}/common/common.js" />
+        <include src="file://{resources}/scripts/{addon}/panorama/tile.js" />
+    </scripts>
+
+    <styles>
+        <!-- Included css style files go here -->
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="file://{resources}/styles/{addon}/monopolis.css" />
+    </styles>
+
+    <Panel class="MainSpace" hittest="false">
+        <Panel id="ExampleSpace" onactivate="OnClick()">
+            <Panel id="HouseBox" />
+
+            <Label id="SpaceName" text="WHITECHAPEL ROAD" />
+
+            <Image id="Image" src="" />
+            
+            <Panel id="PriceContainer">
+                <Label id="PaymentText" />
+                <Panel class="GoldIcon" />
+                <Label id="SpacePrice" text="420" />
+            </Panel>
+        </Panel>
+    </Panel>
+</root>

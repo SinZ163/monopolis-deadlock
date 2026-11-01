@@ -1,0 +1,23 @@
+<root>
+    <scripts>
+        <!-- Included JS script files go here -->
+        <include src="file://{resources}/scripts/{addon}/common/common.js" />
+        <include src="file://{resources}/scripts/{addon}/panorama/tile.js" />
+    </scripts>
+
+    <styles>
+        <!-- Included css style files go here -->
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="file://{resources}/styles/{addon}/monopolis.css" />
+    </styles>
+
+    <Panel class="MainSpace" hittest="false">
+        <Panel id="ExampleCorner">
+            <Label id="CornerTextAbove" text="" />
+
+            <Image id="CornerImage" src="s2r://materials/particle/ritual/deadlock_logo_ritual_sigil01.vtex" />
+
+            <Label id="CornerTextBelow" text="" />
+        </Panel>
+    </Panel>
+</root>

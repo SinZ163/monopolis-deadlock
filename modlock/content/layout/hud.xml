@@ -1,0 +1,209 @@
+<root>
+    <scripts>
+        <!-- Included JS script files go here -->
+        <include src="file://{resources}/scripts/modlock/layout.js" />
+        <include src="file://{resources}/scripts/{addon}/common/common.js" />
+        <!--<include src="file://{resources}/scripts/{addon}/panorama/trade.js" />-->
+        <include src="file://{resources}/scripts/{addon}/panorama/hud.js" />
+    </scripts>
+
+    <styles>
+        <!-- Included css style files go here -->
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="file://{resources}/styles/{addon}/hud.css" />
+        <include src="file://{resources}/styles/{addon}/bottombar.css" />
+        <include src="file://{resources}/styles/{addon}/propertymanagement.css" />
+        <include src="file://{resources}/styles/{addon}/trade.css" />
+    </styles>
+    <snippets>
+        <snippet name="MoneyTableRow">
+            <Panel class="MoneyTableRow">
+                <Panel class="MoneyTopBar" hittest="false">
+                    <CitadelAvatarImage id="Image" hittest="false" />
+                    <CitadelUserName id="Name" hittest="false" />
+                    <Label id="GoldAmount" hittest="false" />
+                </Panel>
+            </Panel>
+        </snippet>
+        <snippet name="TradePlayerSlotEntry">
+            <Panel class="TradePlayerSlot">
+                <Panel class="TradePlayerTopBar">
+                    <CitadelAvatarImage id="PlayerImage" />
+                    <CitadelUserName id="PlayerName" />
+                    <Label text="" html="true" />
+                    <NumberEntry id="TransferMoney" draggable="true" />
+                </Panel>
+            </Panel>
+        </snippet>
+        <snippet name="TradeConfirmationSlot">
+            <Panel class="TradeConfirmationSlot">
+                <CitadelAvatarImage id="PlayerImage" />
+            </Panel>
+        </snippet>
+        <snippet name="TradeOfferRow">
+            <Panel class="TradeSummaryRow">
+                <Panel id="TradeSummaryFromPlayer">
+                    <CitadelAvatarImage id="PlayerFromImage" />
+                    <CitadelUserName id="PlayerFromName" />
+                </Panel>
+                <Panel id="TradeSummaryContents" />
+                <Panel id="TradeSummaryToPlayer">
+                    <CitadelAvatarImage id="PlayerToImage" />
+                    <CitadelUserName id="PlayerToName" />
+                </Panel>
+            </Panel>
+        </snippet>
+        <snippet name="PropertyManagementRow">
+            <Panel class="PropertyManagementRow">
+                <Panel id="PropertyColour" />
+                <Label id="PropertyName" />
+                <Label id="PropertyStatus" />
+                <Button id="BuyHouse">
+                    <Label text="+" />
+                </Button>
+                <Button id="SellHouse">
+                    <Label text="-" />
+                </Button>
+            </Panel>
+        </snippet>
+        <snippet name="AuctionBidHistoryRow">
+            <Panel class="Bid">
+                <CitadelAvatarImage id="AuctionBidAvatar" />
+                <CitadelUserName  id="AuctionBidName"/>
+                <Label id="AuctionBidLabel" text="#monopolis_auction_bid100" html="true" />
+            </Panel>
+        </snippet>
+    </snippets>
+    <Panel id="MonopolisHud" hittest="false" class="MainHud">
+        <Panel id="DiceRoll" class="OnDiceroll OnAuxRollResult">
+            <Label id="dice1" text="-1" />
+            <Label id="dice2" text="-1" />
+        </Panel>
+        <Panel id="BottomBar">
+            <Panel id="RollDiceButton" class="ButtonContainer green OnStart OnJailed">
+                <Button class="Choice" onactivate="RollDice()">
+                    <Label text="#rolldice" />
+                </Button>
+            </Panel>
+            <Panel id="BuyPropertyButton" class="ButtonContainer green OnUnowned">
+                <Button class="Choice" onactivate="BuyProperty()">
+                    <Label id="buypropertyLabel" text="#buyproperty" html="true" />
+                </Button>
+            </Panel>
+            <Panel id="AuctionButton" class="ButtonContainer red OnUnowned">
+                <Button class="Choice" onactivate="Auction()">
+                    <Label text="#auction" />
+                </Button>
+            </Panel>
+            <Panel id="PayRentButton" class="ButtonContainer red OnPayrent OnJailed">
+                <Button class="Choice" onactivate="PayRent()">
+                    <Label id="payrentLabel" text="#payrent" html="true" />
+                </Button>
+            </Panel>
+            <Panel id="EndturnButton" class="ButtonContainer red OnEndturn">
+                <Button class="Choice" onactivate="Endturn()">
+                    <Label id="endturnLabel" text="#endturn" />
+                </Button>
+            </Panel>
+            <Panel id="StartTradeButton" class="ButtonContainer green OnEndturn">
+                <Button class="Choice" onactivate="StartTrade()">
+                    <Label id="startTradeLabel" text="#starttrade" />
+                </Button>
+            </Panel>
+            <Panel id="BankruptButton" class="ButtonContainer red">
+                <Button class="Choice" onactivate="Bankrupt()">
+                    <Label text="#monopolis_bankrupt" />
+                </Button>
+            </Panel>
+        </Panel>
+        <Panel id="MoneyTable" />
+        <Panel id="PropertyManagement" class="OnEndturn" />
+        <Panel id="CardScreen" class="OnCardPrompt OnCardResult OnAuxRollPrompt OnAuxRollResult">
+            <Label id="CardDeckType" />
+            <Label id="CardResultText" class="OnCardResult OnAuxRollPrompt OnAuxRollResult"  html="true" />
+            <Image id="CardPromptImage" class="OnCardPrompt" />
+            <Panel id="CardPromptButton" class="ButtonContainer green OnCardPrompt">
+                <Button class="Choice" onactivate="DrawCard()">
+                    <Label text="#drawcard" />
+                </Button>
+            </Panel>
+            <Panel id="AuxRollDiceButton" class="ButtonContainer green OnAuxRollPrompt">
+                <Button class="Choice" onactivate="RollDice()">
+                    <Label text="#rolldice" />
+                </Button>
+            </Panel>
+            <Panel id="CardResultButton" class="ButtonContainer OnCardResult OnAuxRollResult">
+                <Button class="Choice" onactivate="AcknowledgeCard()">
+                    <Label id="CardResultButtonText" html="true" />
+                </Button>
+            </Panel>
+        </Panel>
+        <Panel id="AuctionScreen" class="OnAuction">
+            <Panel id="AuctionPropertyShowcase">
+                <Label text="TODO Do something here?!" />
+            </Panel>
+            <Panel id="AuctionValue">
+                <Label text="#monopolis_auction_value" />
+                <Panel class="GoldIcon" />
+                <Label id="AuctionValueText" text="VALUE" />
+            </Panel>
+            <Panel id="BidHistory">
+            </Panel>
+            <Panel id="AuctionButtons">
+                <Panel class="ButtonContainer green">
+                    <Button class="Choice" onactivate="AuctionBid(10)">
+                        <Label text="#monopolis_auction_bid10_button" html="true" />
+                    </Button>
+                </Panel>
+                <Panel class="ButtonContainer green">
+                    <Button class="Choice" onactivate="AuctionBid(50)">
+                        <Label text="#monopolis_auction_bid50_button" html="true" />
+                    </Button>
+                </Panel> 
+                <Panel class="ButtonContainer green">
+                    <Button class="Choice" onactivate="AuctionBid(100)">
+                        <Label text="#monopolis_auction_bid100_button" html="true" />
+                    </Button>
+                </Panel>
+                <Panel class="ButtonContainer red">
+                    <Button class="Choice" onactivate="AuctionWithdraw()">
+                        <Label text="#monopolis_auction_withdraw_button" />
+                    </Button>
+                </Panel>
+            </Panel>
+        </Panel>
+        <Panel id="TradeScreen" class="OnUITrade">
+            <Panel id="TradePlayerSlots" />
+            <Panel id="TradeSidebar">
+                <Panel id="TradeSummary" />
+                <Panel id="TradeConfirm">
+                    <Panel id="TradeConfirmButton" class="ButtonContainer green">
+                        <Button class="Choice" onactivate="TradeConfirm()">
+                            <Label text="#tradeconfirm_button" />
+                        </Button>    
+                    </Panel>
+                    <Panel id="TradeCancelButton" class="ButtonContainer red">
+                        <Button class="Choice" onactivate="TradeCancel()">
+                            <Label text="#tradecancel_button" />
+                        </Button>    
+                    </Panel>
+                </Panel>
+            </Panel>
+            <Panel id="TradeConfirmation" class="Hidden">
+                <Panel id="TradeConfirmationStatus" />
+                <Panel id="TradeAcceptButtons">
+                    <Panel id="TradeAcceptButton" class="ButtonContainer green">
+                        <Button class="Choice" onactivate="TradeAccept()">
+                            <Label text="#tradeaccept_button" />
+                        </Button>    
+                    </Panel>
+                    <Panel id="TradeRejectButton" class="ButtonContainer red">
+                        <Button class="Choice" onactivate="TradeReject()">
+                            <Label text="#tradereject_button" />
+                        </Button>    
+                    </Panel>
+                </Panel>
+            </Panel>
+        </Panel>
+    </Panel>
+</root>
