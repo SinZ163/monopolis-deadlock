@@ -2,4 +2,3 @@
 /modlock/content/scripts/
 /modlock/maps/*.vpk
 node_modules/
-/modlock.maps/

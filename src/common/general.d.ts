@@ -300,7 +300,17 @@ interface TradeState {
     confirmations: Partial<Record<PlayerID, boolean>>,
     status: TradeStateStatus
 }
-declare const enum TradeStateStatus {
-    ModifyTrade,
-    Confirmation,
+
+
+interface PlayerState {
+    pID: PlayerID;
+    money: number;
+    location: number;
+    jailed: number;
+    alive: boolean;
+}
+
+interface PropertyOwnership {
+    houseCount: number;
+    owner: PlayerID;
 }

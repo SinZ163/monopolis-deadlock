@@ -1,5 +1,5 @@
 #BottomBar {
-    width: 40%;
+    min-width: 40%;
     height: 20%;
     vertical-align: bottom;
     horizontal-align: center;
@@ -9,30 +9,16 @@
 }
 
 .green Button {
-    background-color: gradient( linear, 0% 0%, 0% 100%, from( #5Aa15E ), to( #87d695 ) );
+    background-image: url("s2r://panorama/images/main_menu/nav_bg_gray.vsvg");
 }
 .red Button {
-    background-color: gradient( linear, 0% 0%, 0% 100%, from( #722217 ), to( #DD4A29 ) );
+    background-image: url("s2r://panorama/images/main_menu/nav_bg_red.vsvg");
 }
 
 
 .ButtonContainer {    
     width: fit-children;
     height: 100px;
-}
-.ButtonContainer.red .ButtonBackground {
-    hue-rotation: 220deg;
-    saturation: 2;
-}
-.ButtonBackground {
-    width: 300px;
-    height: 70px;
-
-    margin-bottom: -10px;
-    vertical-align: center;
-
-    opacity-mask: url("s2r://panorama/images/masks/softedge_box_png.vtex");
-    z-index: -1;
 }
 
 .Choice:hover {
@@ -48,20 +34,23 @@
     vertical-align: center;
     horizontal-align: center;
 
-    background-image: url("s2r://panorama/images/backgrounds/background_play_button_2x_png.vtex");
-    background-size: 328px 50px;
-
-    border-top: 1px solid #ffffff44;
-    border-left: 1px solid #ffffff44;
-    border-bottom: 1px solid #00000088;
-    border-right: 1px solid #00000088;
+    background-image: url("s2r://panorama/images/main_menu/nav_bg_01.vsvg");
+    background-size: 100%;
+    padding: 8px 32px 6px;
+    margin-bottom: 12px;
+    pre-transform-scale2d: 0.98;
+    pre-transform-rotate2d: -1deg;
+    opacity-mask: url("s2r://panorama/images/main_menu/text_speckle_mask_main_psd.vtex") 0.7;
+    opacity-mask-scale: 100% 200%;
 }
 .Choice Label {
-    width: fit-children;
-    height: 60%;
+    font-size: 44px;
+    font-weight: bold;
     vertical-align: center;
-    color: white;
-    font-size: 26px;
-    text-align: center;
-    font-family: Radiance,FZLanTingHei-R-GBK,TH Sarabun New,YDYGO 540,Gulim,MingLiU;
+    font-family: block;
+    overflow: noclip;
+    transition-property: color, transform;
+    transition-duration: 0.12s;
+    color: offWhite&aa overflow: noclip;
+    opacity-mask-scale: 160% 160%;
 }

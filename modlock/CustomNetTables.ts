@@ -1,22 +1,12 @@
 import { Connection } from "modlock";
 
-export interface PlayerState {
+export interface ServerPlayerState extends PlayerState {
     connection: Connection;
-    pID: PlayerID;
-    money: number;
-    location: number;
-    jailed: number;
-    alive: boolean;
-}
-
-export interface PropertyOwnership {
-    houseCount: number;
-    owner: PlayerID;
 }
 
 export interface CustomNetTableDeclarations {
     property_ownership: Record<PurchasableTiles, PropertyOwnership>,
-    player_state: Record<string, PlayerState>,
+    player_state: Record<string, ServerPlayerState>,
     misc: {
         current_turn: TurnState
         roll_order: Record<string, PlayerID>,

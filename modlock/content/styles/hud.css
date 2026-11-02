@@ -412,10 +412,17 @@
 #AuctionButtons .ButtonBackground {
     width: 190px;
 }
+#AuctionButtons .Choice Label {
+    font-size: 23px;
+}
+#AuctionButtons .Choice .inlinegold {
+    height: 30px;
+}
 .Bid {
     width: 400px;
     flow-children: right;
     transition: height 1.0s ease-in-out 0.0s;
+    background-color: gray;
 }
 .Bid Label {
     color: black;
@@ -435,7 +442,7 @@
 .Bid100 Label {
     font-size: 30px;
 }
-.Bid10 DOTAAvatarImage {
+.Bid10 CitadelAvatarImage {
     opacity: 0;
 }
 
@@ -484,7 +491,8 @@
 
 .inlinegold {
     width: height-percentage(100%);
-    height: 20px;
+    height: 47px;
+    wash-color: shardColor;
     margin-right: 2px;
     vertical-align: top;
 }

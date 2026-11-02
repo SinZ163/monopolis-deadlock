@@ -1,5 +1,5 @@
 /// <reference path="general.d.ts" />
-const TilesObj: Record<Tiles,SpaceDefinition> = {
+const TilesObj: Record<Tiles, SpaceDefinition> = {
     go: {
         type: "misc",
         id: "go",
@@ -447,7 +447,7 @@ const TilesObj: Record<Tiles,SpaceDefinition> = {
         hotelPrice: 2000
     }
 };
-const locale = {
+const locale: Record<string,string> = {
     "tile_go": "GO",
 
     "tile_brown1": "Mediterranean Avenue",
@@ -516,6 +516,94 @@ const locale = {
     "jail_below": "JAIL",
 
     "pay": "Pay",
+
+    "auction": "Auction",
+    "endturn": "End turn",
+    "reroll": "Re-roll",
+    "rolldice": "Roll Dice",
+    "starttrade": "Start Trade",
+    "monopolis_bankrupt": "Bankrupt",
+    "drawcard": "Draw Card",
+
+    "buyproperty": "Buy {s:property}",
+
+
+    "payrent": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:price}",
+
+    "deck_communitychest": "COMMUNITY CHEST",
+    "deck_chance": "CHANCE",
+
+    "card_money_gain": "Gain <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}",
+    "card_money_gain_other": "Gain <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} from each player (<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total})",
+    "card_money_lose": "Pay {d:value}",
+    "card_money_lose_other": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} to each player (<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total})",
+    "card_repairs": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:var1} ({d:var2} houses, {d:var3} hotels)",
+
+    "card_teleport": "OK",
+    "card_teleport_category": "OK",
+    "card_teleport_relative": "OK",
+    "card_jail": "OK",
+
+    "card_jail_text": "Go to Jail. Go directly to Jail. Do not pass GO, do not collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />200.",
+    "card_fuckjail_text": "Get out of Jail Free. This card may be kept until needed, or traded/sold.",
+
+    "card_adv": "Advance to {s:dest}. If you pass Go, collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />200.",
+    "card_adv_go": "Advance to {s:dest}. (Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />200)",
+    "card_adv_railroad1": "Take a trip to {s:dest}. If you pass Go, collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />200.",
+    "card_adv_blue2": "Take a walk on the {s:dest}.",
+    "card_adv_utility": "Advance token to the nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total 10 times the amount thrown.",
+    "card_adv_railroad": "Advance to the next Railroad. If unowned, you may buy it from the Bank. If owned, pay the owner twice the rent to which they are otherwise entitled. If railroad is unowned, you may buy it from the Bank.",
+    "card_adv_relative_back": "Go back {d:value} spaces.",
+
+    "CHANCE_BankDividend": "Bank pays you dividend of <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "CHANCE_GeneralRepairs": "Make general repairs on all your property: For each house pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:house}, For each hotel pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:hotel}.",
+    "CHANCE_Speeding": "Speeding fine <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}",
+    "CHANCE_Chairman": "You have been electred Chairman of the Board. Pay each player <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "CHANCE_BuildingLoan": "Your building loan matures. Receive <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+
+    "COMMUNITYCHEST_BankError": "Bank error in your favor. Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Doctor": "Doctor's fees. Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Stock": "From sale of stock you get <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_HolidaySeason": "Holiday Fund matures. Receive <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Income": "Income tax refund. Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Birthday": "It is your birthday. Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} from every player.",
+    "COMMUNITYCHEST_LifeInsurance": "Life insurance matures - Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Hospital": "Hospital Fees. Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_School": "School fees. Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Consultancy": "Receive <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} consultancy fee.",
+    "COMMUNITYCHEST_StreetRepairs": "You are assessed for street repairs: Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:house} per house and <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:hotel} per hotel you own.",
+    "COMMUNITYCHEST_Beauty": "You have won second prize in a beauty contest. Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "COMMUNITYCHEST_Inherit": "You inherit <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+
+    "monopolis_propertymanagement_mortgaged": "Mortgaged",
+    "monopolis_propertymanagement_owned": "Owned",
+    "monopolis_propertymanagement_houses": "{d:houseCount} House",
+    "monopolis_propertymanagement_hotel": "Hotel",
+
+    "monopolis_auction_value": "Auction Value: ",
+    "monopolis_auction_bid10_button": "Bid <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />10",
+    "monopolis_auction_bid50_button": "Bid <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />50",
+    "monopolis_auction_bid100_button": "Bid <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />100",
+    "monopolis_auction_withdraw_button": "Withdraw",
+
+    "monopolis_auction_bid10": "<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />10",
+    "monopolis_auction_bid50": "<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />50",
+    "monopolis_auction_bid100": "<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />100",
+
+    "monopolis_auction_failed": "Auction failed due to no bids, property remained unowned.",
+
+    "monopolis_money": "<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:money}",
+
+    "tradeconfirm_button": "Confirm",
+    "tradecancel_button": "Cancel",
+    "tradeaccept_button": "Accept",
+    "tradereject_button": "Reject",
+}
+
+
+enum TradeStateStatus {
+    ModifyTrade,
+    Confirmation,
 }
 
 // Keep this file a plain script for Panorama's ordered layout includes.
@@ -523,5 +611,6 @@ const locale = {
 declare var MonopolisCommon: {
     TilesObj: typeof TilesObj;
     locale: typeof locale;
+    TradeStateStatus: typeof TradeStateStatus;
 };
-globalThis.MonopolisCommon = { TilesObj, locale };
+globalThis.MonopolisCommon = { TilesObj, locale, TradeStateStatus };

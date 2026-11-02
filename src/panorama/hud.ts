@@ -1,7 +1,49 @@
 const MOVEMENT_SCHEDULE_TIMER = 0.1;
 
+$.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
+    $.Msg("Unhandled Sound", sound);
+    $.Msg("player", $.GetContextPanel().GetAttributeString("modlock_route_player_state", "default_player"));
+    $.Msg("ui", $.GetContextPanel().GetAttributeString("modlock_route_ui_state", "default_ui"));
+    $.Msg("current_turn", $.GetContextPanel().GetAttributeString("modlock_route_current_turn", "default_current_turn"));
+});
+
 (() => {
-    $.Msg("Property Definition Listener firing");
+    for (let pID of Array(6).keys()) {
+        let existingPanel = $(`#MoneyTable_${pID}`);
+        if (!existingPanel) {
+            $.Msg("MoneyTable for pID", pID, "deos not exist?");
+            existingPanel = $.CreatePanel("Panel", $("#MoneyTable"), `MoneyTable_${pID}`);
+            existingPanel.AddClass("Hidden");
+
+            existingPanel.BLoadLayoutSnippet("MoneyTableRow");
+            var propertyContainer = $.CreatePanel("Panel", existingPanel, `MoneyPropertyContainer_${pID}`);
+            propertyContainer.AddClass("MoneyPropertyContainer");
+        }
+        let existingTradePanel = $(`#TradePlayerSlot_${pID}`);
+        if (!existingTradePanel) {
+            $.Msg("TradePlayerSlot for pID", pID, "does not exist?", );
+            existingTradePanel = $.CreatePanel("Panel", $("#TradePlayerSlots"), `TradePlayerSlot_${pID}`);
+            existingTradePanel.BLoadLayoutSnippet("TradePlayerSlotEntry");
+            existingTradePanel.AddClass("Hidden");
+
+            (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = "0";
+            (existingTradePanel.FindChildTraverse("PlayerName") as UserName).steamid = "0";
+            var propertyContainer = $.CreatePanel("Panel", existingTradePanel, `TradePropertyContainer_${pID}`);
+            propertyContainer.AddClass("TradePropertyContainer");
+            $.RegisterEventHandler("DragEnter", propertyContainer, OnTradePropertyDragEnter);
+            $.RegisterEventHandler("DragLeave", propertyContainer, OnTradePropertyDragLeave);
+            $.RegisterEventHandler("DragDrop", propertyContainer, OnTradePropertyDragDrop);
+            (propertyContainer.Data() as any).pID = pID;
+            var moneyContainer = existingTradePanel.FindChildTraverse("TransferMoney") as NumberEntry;
+            $.RegisterEventHandler("DragStart", moneyContainer, OnTradeMoneyDragStart);
+            $.RegisterEventHandler("DragEnd", moneyContainer, OnTradeMoneyDragEnd);
+            (moneyContainer.Data() as any).pID = pID;
+        }
+    }
+})();
+
+Modlock.route("price_definition", (priceDefs) => {
+    if (!priceDefs) return;
     let purchasabletiles = Object.entries(TilesObj).filter(([k,v]) => v.type === "property" || v.type === "railroad" || v.type === "utility") as Array<[PurchasableTiles, PropertyDefinition|RailroadDefinition|UtilityDefinition]>;
     for (let [tileStr, tileInfo] of purchasabletiles.sort((a,b) => (a[1].categoryId - b[1].categoryId) === 0 ? a[1].index - b[1].index : a[1].categoryId - b[1].categoryId)) {
 
@@ -12,7 +54,7 @@ const MOVEMENT_SCHEDULE_TIMER = 0.1;
 
         let panel = $.CreatePanel("Panel", $("#PropertyManagement"), `PropertyManagement_${tile}`);
         panel.BLoadLayoutSnippet("PropertyManagementRow");
-        (panel.FindChildTraverse("PropertyName") as LabelPanel).text = $.Localize(`#tile_${tile}`);
+        (panel.FindChildTraverse("PropertyName") as LabelPanel).text = locale[`tile_${tile}`];
         //panel.FindChildTraverse("BuyHouse")?.SetPanelEvent("onactivate", () => AddHouse(tile));
         //panel.FindChildTraverse("SellHouse")?.SetPanelEvent("onactivate", () => RemoveHouse(tile));
         let colourPanel = panel.FindChildTraverse("PropertyColour");
@@ -67,8 +109,8 @@ const MOVEMENT_SCHEDULE_TIMER = 0.1;
                 colourPanel.AddClass("white");
                 break;
         }
-        /*
-        for (let pID of Game.GetAllPlayerIDs()) {
+        const playerStates = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_player_state", "{}")) as PanoramaPlayerState;
+        for (let {pID} of Object.values(playerStates)) {
             let playerPropertyContainer = $(`#MoneyPropertyContainer_${pID}`);
             const categoryContainerId = `MoneyPropertyContainer_${pID}_${tileInfo.categoryId}`;
             let existingCategoryContainer = playerPropertyContainer.FindChildTraverse(categoryContainerId);
@@ -98,38 +140,48 @@ const MOVEMENT_SCHEDULE_TIMER = 0.1;
             (tradeTile.Data() as any).pID = pID;
             (existingTradeCategoryContainer.Data() as any).pID = pID;
         }
-        OnPropertyChanged(tile, CustomNetTables.GetTableValue("property_ownership", tile));*/
     }
-})();
+});
 
-/*
-SubscribeNetTableKey("misc", "auction", value => {
-    let currentPlayerColor = ColorToHexCode2(Players.GetPlayerColor(value.current_bidder));
-    $("#AuctionButtons").style.backgroundColor = `gradient ( linear, 0% 100%, 100% 0%, from( #00000000 ), to( ${currentPlayerColor} ) );`;
+Modlock.route("property_ownership", (ownership: Record<PurchasableTiles, PropertyOwnership>) => {
+    if (!ownership) return;
+    for (let [key, property] of Object.entries(ownership)) {
+        OnPropertyChanged(key as PurchasableTiles, property);
+    }
+});
+
+Modlock.route("auction", (auction: AuctionState) => {
+    $.Msg("Auction| ", auction);
+    if (!auction) return;
+    //let currentPlayerColor = ColorToHexCode2(Players.GetPlayerColor(value.current_bidder));
+    //$("#AuctionButtons").style.backgroundColor = `gradient ( linear, 0% 100%, 100% 0%, from( #00000000 ), to( ${currentPlayerColor} ) );`;
     ($("#AuctionButtons").style as any).backgroundColorOpacity = 1.0;
     //$("#AuctionButtons").style.backgroundColor = `gradient( radial, 50% 50%, 0% 0%, 20% 20%, from( #000000ff ), to( ${currentPlayerColor}ff ) );`;
     let historicalBidCount = $("#AuctionScreen").GetAttributeInt("historicalBids", 0);
-    ($("#AuctionValueText") as LabelPanel).text = value.current_bid.toFixed(0);
-    let bids = toArray(value.historical_bids);
+    ($("#AuctionValueText") as LabelPanel).text = auction.current_bid.toFixed(0);
+    let bids = auction.historical_bids;
     if (historicalBidCount > bids.length) {
         $("#BidHistory").RemoveAndDeleteChildren();
         historicalBidCount = 0;
     }
+
+    // TODO: Show who is in vs withdrawn
+
+    const playerStates = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_player_state", "{}")) as PanoramaPlayerState;
     for (let bidId = historicalBidCount; bidId < bids.length; bidId++) {
         let bid = bids[bidId];
 
         let bidPanel = $.CreatePanel("Panel", $("#BidHistory"), `Bid_${bidId}`);
         bidPanel.BLoadLayoutSnippet("AuctionBidHistoryRow");
         bidPanel.AddClass("Bid");
-        bidPanel.style.backgroundColor = ColorToHexCode2(Players.GetPlayerColor(bid.pID));
+        //bidPanel.style.backgroundColor = ColorToHexCode2(Players.GetPlayerColor(bid.pID));
         $.Schedule(0, () => bidPanel.AddClass("Bid" + bid.amount));
 
-        (bidPanel.FindChildTraverse("AuctionBidAvatar") as AvatarImage).steamid = Game.GetPlayerInfo(bid.pID).player_steamid;
-        (bidPanel.FindChildTraverse("AuctionBidName") as UserName).steamid = Game.GetPlayerInfo(bid.pID).player_steamid;
-        (bidPanel.FindChildTraverse("AuctionBidLabel") as LabelPanel).text = $.Localize("monopolis_auction_bid" + bid.amount);
+        (bidPanel.FindChildTraverse("AuctionBidAvatar") as AvatarImage).steamid = playerStates[bid.pID].steamId;
+        (bidPanel.FindChildTraverse("AuctionBidName") as UserName).steamid = playerStates[bid.pID].steamId;
+        (bidPanel.FindChildTraverse("AuctionBidLabel") as LabelPanel).text = locale["monopolis_auction_bid" + bid.amount];
     }
     $("#AuctionScreen").SetAttributeInt("historicalBids", bids.length);
-
 });
 
 function OnPropertyChanged(tile: PurchasableTiles, value: PropertyOwnership) {
@@ -145,7 +197,8 @@ function OnPropertyChanged(tile: PurchasableTiles, value: PropertyOwnership) {
         existingPanel.AddClass(`Owner_${value.owner}`);
         existingPanel.SetAttributeInt("current_owner", value.owner);
     }
-    for (let pID of Game.GetAllPlayerIDs()) {
+    const playerStates = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_player_state", "{}")) as PanoramaPlayerState;
+    for (let {pID} of Object.values(playerStates)) {
         let playerTile = $(`#MoneyProperty_${pID}_${tile}`);
         playerTile.SetHasClass("Unowned", value.owner === -1);
         playerTile.SetHasClass("Hotel", value.owner === pID && value.houseCount === 5);
@@ -183,8 +236,8 @@ function OnPropertyChanged(tile: PurchasableTiles, value: PropertyOwnership) {
             break;
     }
     let propertyStatus = (existingPanel.FindChildTraverse("PropertyStatus") as LabelPanel);
-    propertyStatus.text = $.Localize(text, propertyStatus);
-}*/
+    propertyStatus.text = locale[text];
+}
 
 
 Modlock.route("ui_state", (state: UIState) => {
@@ -224,7 +277,7 @@ Modlock.route("current_turn", (turnState: TurnState) => {
         $.GetContextPanel().SetAttributeInt("currentturn", turnState.pID);
     }
 
-    let diceRolls = toArray(turnState.rolls);
+    let diceRolls = turnState.rolls;
     let isDoubles = (diceRolls.length > 0 && diceRolls.length < 3 && diceRolls[diceRolls.length - 1].dice1 === diceRolls[diceRolls.length - 1].dice2);
 
     try {
@@ -241,9 +294,9 @@ Modlock.route("current_turn", (turnState: TurnState) => {
         ($("#dice1") as LabelPanel).text = turnState.dice1.toFixed(0);
         ($("#dice2") as LabelPanel).text = turnState.dice2.toFixed(0);
         if (isDoubles) {
-            ($("#endturnLabel") as LabelPanel).text = $.Localize("reroll");
+            ($("#endturnLabel") as LabelPanel).text = locale["reroll"];
         } else {
-            ($("#endturnLabel") as LabelPanel).text = $.Localize("endturn");
+            ($("#endturnLabel") as LabelPanel).text = locale["endturn"];
         }
     }
     //let playerState = CustomNetTables.GetTableValue("player_state", turnState.pID.toFixed(0));
@@ -260,7 +313,7 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             }
             break;
         case "unowned":
-            $("#buypropertyLabel").SetDialogVariableLocString("property", `#tile_${turnState.property}`);
+            $("#buypropertyLabel").SetDialogVariable("property", locale[`tile_${turnState.property}`]);
             break;
         case "payrent":
             $("#payrentLabel").SetDialogVariableInt("price", turnState.price);
@@ -285,7 +338,7 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                     break;
             } 
             ($("#CardPromptImage") as ImagePanel).SetImage(imageUrl);
-            ($("#CardDeckType") as LabelPanel).text = $.Localize(`deck_${turnState.deck}`);
+            ($("#CardDeckType") as LabelPanel).text = locale[`deck_${turnState.deck}`];
             break;
         case "card_result":
         case "auxroll_result":
@@ -312,31 +365,44 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                     }
                     break;
             }
+            let text: string;
+            if (turnState.type === "auxroll_result") {
+                text = locale["payrent"];
+            } else {
+                text = locale["card_" + turnState.card.type];
+            }
+            ($("#CardResultButtonText") as LabelPanel).text = text;
+            let resultText = locale[turnState.card.text];
+            ($("#CardResultText") as LabelPanel).text = resultText;
+            if (colourClass !== "") {
+                $("#CardResultButton").AddClass(colourClass);
+            }
             // Functional logic
             switch(turnState.card.type) {
                 case "money_gain":
                 case "money_gain_others":
                 case "money_lose":
                 case "money_lose_others":
-                    $("#CardResultText").SetDialogVariableInt("value", turnState.card.value);
-                    $("#CardResultButtonText").SetDialogVariableInt("value", turnState.card.value);
+                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
+                    ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
                     break;
                 case "repairs":
-                    $("#CardResultText").SetDialogVariableInt("house", turnState.card.house);
-                    $("#CardResultText").SetDialogVariableInt("hotel", turnState.card.hotel);
+                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:house}", turnState.card.house.toFixed(0));
+                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:hotel}", turnState.card.hotel.toFixed(0));
                     break;
                 case "teleport":
-                    $("#CardResultText").SetDialogVariableLocString("dest", "tile_" + turnState.card.dest);
+                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{s:dest}", locale["tile_" + turnState.card.dest]);
                     break;
                 case "teleport_relative":
-                    $("#CardResultText").SetDialogVariableInt("value", Math.abs(turnState.card.value));
-                    $("#CardResultButtonText").SetDialogVariableInt("value", Math.abs(turnState.card.value));
+                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
+                    ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
                     break;
                 case "teleport_category":
                     if (turnState.type === "auxroll_result") {
-                        $("#CardResultButtonText").SetDialogVariableInt("price", turnState.value);
+                        ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:price}", turnState.value.toFixed(0));
                     }
             }
+            
             /*if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
                 let value = turnState.card.value;
                 if (turnState.card.type === "money_lose_others") {
@@ -352,18 +418,6 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                 $.GetContextPanel().AddClass("SellStuffRequired");
             }*/
             // TODO: Repairs
-            let text: string;
-            if (turnState.type === "auxroll_result") {
-                text = $.Localize("payrent", $("#CardResultButtonText"));
-            } else {
-                text = $.Localize("card_" + turnState.card.type, $("#CardResultButtonText"));
-            }
-            ($("#CardResultButtonText") as LabelPanel).text = text;
-            let resultText = $.Localize(turnState.card.text, $("#CardResultText"));
-            ($("#CardResultText") as LabelPanel).text = resultText;
-            if (colourClass !== "") {
-                $("#CardResultButton").AddClass(colourClass);
-            }
             break;
         case "endturn":
             /*$.Msg(playerState);
@@ -425,81 +479,65 @@ function AuctionWithdraw() {
     $.Msg("Withdraw");
     $.DispatchEvent('CitadelConCommand', `monopolis_auctionwithdraw`);
 }
-/*
-let players = Game.GetAllPlayerIDs();
-for (let pID of players) {
-    let existingPanel = $(`#MoneyTable_${pID}`);
-    if (!existingPanel) {
-        $.Msg("MoneyTable for pID", pID, "deos not exist?");
-        existingPanel = $.CreatePanel("Panel", $("#MoneyTable"), `MoneyTable_${pID}`);
-        existingPanel.BLoadLayoutSnippet("MoneyTableRow");
 
-        (existingPanel.FindChildTraverse("Image") as AvatarImage).steamid = Game.GetPlayerInfo(pID).player_steamid;
-        (existingPanel.FindChildTraverse("Name") as UserName).steamid = Game.GetPlayerInfo(pID).player_steamid;
-        var propertyContainer = $.CreatePanel("Panel", existingPanel, `MoneyPropertyContainer_${pID}`);
-        propertyContainer.AddClass("MoneyPropertyContainer");
-    }
-    let existingTradePanel = $(`#TradePlayerSlot_${pID}`);
-    if (!existingTradePanel) {
-        $.Msg("TradePlayerSlot for pID", pID, "does not exist?", );
-        existingTradePanel = $.CreatePanel("Panel", $("#TradePlayerSlots"), `TradePlayerSlot_${pID}`);
-        existingTradePanel.BLoadLayoutSnippet("TradePlayerSlotEntry");
+type PanoramaPlayerState = Record<string, PlayerState & { steamId: string, connection: {name: string, bot: boolean}} >;
 
-        (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = Game.GetPlayerInfo(pID).player_steamid;
-        (existingTradePanel.FindChildTraverse("PlayerName") as UserName).steamid = Game.GetPlayerInfo(pID).player_steamid;
-        var propertyContainer = $.CreatePanel("Panel", existingTradePanel, `TradePropertyContainer_${pID}`);
-        propertyContainer.AddClass("TradePropertyContainer");
-        $.RegisterEventHandler("DragEnter", propertyContainer, OnTradePropertyDragEnter);
-        $.RegisterEventHandler("DragLeave", propertyContainer, OnTradePropertyDragLeave);
-        $.RegisterEventHandler("DragDrop", propertyContainer, OnTradePropertyDragDrop);
-        (propertyContainer.Data() as any).pID = pID;
-        var moneyContainer = existingTradePanel.FindChildTraverse("TransferMoney") as NumberEntry;
-        $.RegisterEventHandler("DragStart", moneyContainer, OnTradeMoneyDragStart);
-        $.RegisterEventHandler("DragEnd", moneyContainer, OnTradeMoneyDragEnd);
-        (moneyContainer.Data() as any).pID = pID;
-    }
-}
+Modlock.route("player_state", (state: PanoramaPlayerState) => {
+    $.Msg("Player state", state);
+    if (!state) return;
 
+    const turnState = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_current_turn", "{}")) as TurnState;
 
-SubscribeNetTableAll("player_state", (_, pID, state) => {
-    $.Msg("Hud.ts", _, pID, state);
-    let existingPanel = $(`#MoneyTable_${pID}`);
-    if (!existingPanel) {
-        $.Msg("Doesn't exist, wtf?!?");
-    }
-    (existingPanel.FindChildTraverse("GoldAmount") as LabelPanel).text = state.money.toFixed(0);
-    existingPanel.style.borderColor = ColorToHexCode2(Players.GetPlayerColor(Number.parseInt(pID) as PlayerID));
+    for (let player of Object.values(state)) {
+        const pID = player.pID;
+        let existingPanel = $(`#MoneyTable_${pID}`);
+        let existingTradePanel = $(`#TradePlayerSlot_${pID}`);
 
-    let currentTurn = $.GetContextPanel().GetAttributeInt("currentturn", -1);
-    
-    if (currentTurn === state.pID) {
-        // Jailed people dont get to reroll
-        if (state.jailed > 0) {
-            ($("#endturnLabel") as LabelPanel).text = $.Localize("endturn");
+        if (existingPanel.BHasClass("Hidden")) {
+            existingPanel.RemoveClass("Hidden");
+            (existingPanel.FindChildTraverse("Image") as AvatarImage).steamid = player.steamId;
+            (existingPanel.FindChildTraverse("Name") as UserName).steamid = player.steamId;
         }
-        let turnState = CustomNetTables.GetTableValue("misc", "current_turn");
-        if (turnState.type === "payrent" && state.money >= turnState.price) {
-            $.GetContextPanel().RemoveClass("SellStuffRequired");
+        if (existingTradePanel.BHasClass("Hidden")) {
+            existingTradePanel.RemoveClass("Hidden");
+            (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = player.steamId;
+            (existingTradePanel.FindChildTraverse("PlayerName") as UserName).steamid = player.steamId;
         }
-        else if (turnState.type === "card_result") {
-            if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") { 
-                let value = turnState.card.value;
-                if (turnState.card.type === "money_lose_others") {
-                    let playerStates = CustomNetTables.GetAllTableValues("player_state");
-                    let aliveOthers = playerStates.filter(player => player.value.pID !== turnState.pID && player.value.alive === 1);
-                    value = value * aliveOthers.length;
-                }
-                if (state.money >= value) {
-                    $.GetContextPanel().RemoveClass("SellStuffRequired");
+
+
+        (existingPanel.FindChildTraverse("GoldAmount") as LabelPanel).text = player.money.toFixed(0);
+        //existingPanel.style.borderColor = ColorToHexCode2(Players.GetPlayerColor(Number.parseInt(pID) as PlayerID));
+
+        let currentTurn = $.GetContextPanel().GetAttributeInt("currentturn", -1);
+        if (currentTurn === player.pID) {
+            // Jailed people dont get to reroll
+            if (player.jailed > 0) {
+                ($("#endturnLabel") as LabelPanel).text = locale["endturn"];
+            }
+            if (turnState.type === "payrent" && player.money >= turnState.price) {
+                $.GetContextPanel().RemoveClass("SellStuffRequired");
+            }
+            else if (turnState.type === "card_result") {
+                if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") { 
+                    let value = turnState.card.value;
+                    if (turnState.card.type === "money_lose_others") {
+                        let playerStates = Object.values(state);
+                        let aliveOthers = playerStates.filter(player => player.pID !== turnState.pID && player.alive);
+                        value = value * aliveOthers.length;
+                    }
+                    if (player.money >= value) {
+                        $.GetContextPanel().RemoveClass("SellStuffRequired");
+                    }
                 }
             }
+            else if (turnState.type === "auxroll_result" && player.money >= turnState.value) {
+                $.GetContextPanel().RemoveClass("SellStuffRequired");
+            }
         }
-        else if (turnState.type === "auxroll_result" && state.money >= turnState.value) {
-            $.GetContextPanel().RemoveClass("SellStuffRequired");
-        }
+
     }
 });
-
+/*
 
 function AddHouse(tile: PurchasableTiles) {
     $.Msg("Adding house to ", tile);
@@ -534,19 +572,4 @@ function ColorToHexCode2(color: number) {
 	}
 	return '#' + red + green + blue;
 }
-/**
- * Turn a table object into an array.
- * @param obj The object to transform to an array.
- * @returns An array with items of the value type of the original object.
- */
-function toArray<T>(obj: Record<number, T>): T[] {
-    const result = [];
-    
-    let key = 1;
-    while (obj[key]) {
-        result.push(obj[key]);
-        key++;
-    }
-
-    return result;
-}
+*/

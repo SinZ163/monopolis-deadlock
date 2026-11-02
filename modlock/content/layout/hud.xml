@@ -3,7 +3,7 @@
         <!-- Included JS script files go here -->
         <include src="file://{resources}/scripts/modlock/layout.js" />
         <include src="file://{resources}/scripts/{addon}/common/common.js" />
-        <!--<include src="file://{resources}/scripts/{addon}/panorama/trade.js" />-->
+        <include src="file://{resources}/scripts/{addon}/panorama/trade.js" />
         <include src="file://{resources}/scripts/{addon}/panorama/hud.js" />
     </scripts>
 
@@ -82,37 +82,37 @@
         <Panel id="BottomBar">
             <Panel id="RollDiceButton" class="ButtonContainer green OnStart OnJailed">
                 <Button class="Choice" onactivate="RollDice()">
-                    <Label text="#rolldice" />
+                    <Label text="Roll Dice" />
                 </Button>
             </Panel>
             <Panel id="BuyPropertyButton" class="ButtonContainer green OnUnowned">
                 <Button class="Choice" onactivate="BuyProperty()">
-                    <Label id="buypropertyLabel" text="#buyproperty" html="true" />
+                    <Label id="buypropertyLabel" text="Buy {s:property}" html="true" />
                 </Button>
             </Panel>
             <Panel id="AuctionButton" class="ButtonContainer red OnUnowned">
                 <Button class="Choice" onactivate="Auction()">
-                    <Label text="#auction" />
+                    <Label text="Auction" />
                 </Button>
             </Panel>
             <Panel id="PayRentButton" class="ButtonContainer red OnPayrent OnJailed">
                 <Button class="Choice" onactivate="PayRent()">
-                    <Label id="payrentLabel" text="#payrent" html="true" />
+                    <Label id="payrentLabel" text="Pay &lt;img class=&quot;inlinegold&quot; src=&quot;s2r://panorama/images/hud/icons/icon_soul.vsvg&quot; /&gt;{d:price}" html="true" />
                 </Button>
             </Panel>
             <Panel id="EndturnButton" class="ButtonContainer red OnEndturn">
                 <Button class="Choice" onactivate="Endturn()">
-                    <Label id="endturnLabel" text="#endturn" />
+                    <Label id="endturnLabel" text="End turn" />
                 </Button>
             </Panel>
             <Panel id="StartTradeButton" class="ButtonContainer green OnEndturn">
                 <Button class="Choice" onactivate="StartTrade()">
-                    <Label id="startTradeLabel" text="#starttrade" />
+                    <Label id="startTradeLabel" text="Start Trade" />
                 </Button>
             </Panel>
             <Panel id="BankruptButton" class="ButtonContainer red">
                 <Button class="Choice" onactivate="Bankrupt()">
-                    <Label text="#monopolis_bankrupt" />
+                    <Label text="Bankrupt" />
                 </Button>
             </Panel>
         </Panel>
@@ -124,12 +124,12 @@
             <Image id="CardPromptImage" class="OnCardPrompt" />
             <Panel id="CardPromptButton" class="ButtonContainer green OnCardPrompt">
                 <Button class="Choice" onactivate="DrawCard()">
-                    <Label text="#drawcard" />
+                    <Label text="Draw Card" />
                 </Button>
             </Panel>
             <Panel id="AuxRollDiceButton" class="ButtonContainer green OnAuxRollPrompt">
                 <Button class="Choice" onactivate="RollDice()">
-                    <Label text="#rolldice" />
+                    <Label text="Roll Dice" />
                 </Button>
             </Panel>
             <Panel id="CardResultButton" class="ButtonContainer OnCardResult OnAuxRollResult">
@@ -143,7 +143,7 @@
                 <Label text="TODO Do something here?!" />
             </Panel>
             <Panel id="AuctionValue">
-                <Label text="#monopolis_auction_value" />
+                <Label text="Auction Value: " />
                 <Panel class="GoldIcon" />
                 <Label id="AuctionValueText" text="VALUE" />
             </Panel>
@@ -152,22 +152,22 @@
             <Panel id="AuctionButtons">
                 <Panel class="ButtonContainer green">
                     <Button class="Choice" onactivate="AuctionBid(10)">
-                        <Label text="#monopolis_auction_bid10_button" html="true" />
+                        <Label text="Bid &lt;img class=&quot;inlinegold&quot; src=&quot;s2r://panorama/images/hud/icons/icon_soul.vsvg&quot; /&gt;10" html="true" />
                     </Button>
                 </Panel>
                 <Panel class="ButtonContainer green">
                     <Button class="Choice" onactivate="AuctionBid(50)">
-                        <Label text="#monopolis_auction_bid50_button" html="true" />
+                        <Label text="Bid &lt;img class=&quot;inlinegold&quot; src=&quot;s2r://panorama/images/hud/icons/icon_soul.vsvg&quot; /&gt;50" html="true" />
                     </Button>
                 </Panel> 
                 <Panel class="ButtonContainer green">
                     <Button class="Choice" onactivate="AuctionBid(100)">
-                        <Label text="#monopolis_auction_bid100_button" html="true" />
+                        <Label text="Bid &lt;img class=&quot;inlinegold&quot; src=&quot;s2r://panorama/images/hud/icons/icon_soul.vsvg&quot; /&gt;100" html="true" />
                     </Button>
                 </Panel>
                 <Panel class="ButtonContainer red">
                     <Button class="Choice" onactivate="AuctionWithdraw()">
-                        <Label text="#monopolis_auction_withdraw_button" />
+                        <Label text="Withdraw" />
                     </Button>
                 </Panel>
             </Panel>
@@ -179,12 +179,12 @@
                 <Panel id="TradeConfirm">
                     <Panel id="TradeConfirmButton" class="ButtonContainer green">
                         <Button class="Choice" onactivate="TradeConfirm()">
-                            <Label text="#tradeconfirm_button" />
+                            <Label text="Confirm" />
                         </Button>    
                     </Panel>
                     <Panel id="TradeCancelButton" class="ButtonContainer red">
                         <Button class="Choice" onactivate="TradeCancel()">
-                            <Label text="#tradecancel_button" />
+                            <Label text="Cancel" />
                         </Button>    
                     </Panel>
                 </Panel>
@@ -194,12 +194,12 @@
                 <Panel id="TradeAcceptButtons">
                     <Panel id="TradeAcceptButton" class="ButtonContainer green">
                         <Button class="Choice" onactivate="TradeAccept()">
-                            <Label text="#tradeaccept_button" />
+                            <Label text="Accept" />
                         </Button>    
                     </Panel>
                     <Panel id="TradeRejectButton" class="ButtonContainer red">
                         <Button class="Choice" onactivate="TradeReject()">
-                            <Label text="#tradereject_button" />
+                            <Label text="Reject" />
                         </Button>    
                     </Panel>
                 </Panel>

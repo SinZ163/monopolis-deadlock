@@ -1,4 +1,4 @@
-import { command, onFrame, createEntity, findEntities, fireInput, modifierState, Buttons, onStart, setFreeForAll, readField, vector, Puppet, addBot, players, Cast, entityName, entityPosition, writeField, after, onWorld, precache } from 'modlock'
+import { command, onFrame, createEntity, findEntities, fireInput, modifierState, Buttons, onStart, setFreeForAll, readField, vector, Puppet, addBot, players, Cast, entityName, entityPosition, writeField, after, onWorld, precache, hideHud, onInput } from 'modlock'
 import { CPointClientUIWorldPanel } from "modlock/entities";
 import { heroes } from 'modlock';
 
@@ -6,6 +6,12 @@ import {drawHud} from "./hud";
 
 import "../src/common/common";
 import { GameMode } from './GameMode';
+
+
+// TODO: Fix
+export function IsInToolsMode() {
+    return false;
+}
 
 // The shared file is a Panorama script, not an ES module with named exports.
 const { TilesObj } = globalThis.MonopolisCommon;
@@ -29,9 +35,7 @@ onWorld(() => {
     let worldpanel = new CPointClientUIWorldPanel(entity)
     let pos = entityPosition(entity)
     writeField(entity, "CBaseClientUIEntity", "m_DialogXMLName", "string", "file://{resources}/layout/{addon}/sinz_worldpanel.xml")
-    console.log(name, worldpanel.m_DialogXMLName, pos, "!")
     layoutPath = worldpanel.m_DialogXMLName!.slice(0, worldpanel.m_DialogXMLName?.lastIndexOf("/"));
-    console.log(globalThis.MonopolisCommon, TilesObj);
     if (TilesObj[name].type === "property") {
       worldpanel.inputAddCSSClass(TilesObj[name].category)
     }
@@ -54,30 +58,32 @@ command("monopolis_requestpayrent", (player, args) => gamemode.PayRent(player, a
 command("monopolis_requestauction", (player, args) => gamemode.StartAuction(player, args));
 command("monopolis_requestcard", (player, args) => gamemode.DrawCard(player, args));
 command("monopolis_acknowledgecard", (player, args) => gamemode.AcknowledgeCard(player, args));
-//command("monopolis_auctionbid", (player, args) => gamemode.AuctionBid(player, args));
+command("monopolis_auctionbid", (player, args) => gamemode.AuctionBid(player, args));
 command("monopolis_auctionwithdraw", (player, args) => gamemode.AuctionWithdraw(player, args));
 command("monopolis_requestbankrupt", (player, args) => gamemode.Bankrupt(player, args));
 command("monopolis_requesttrade", (player, args) => gamemode.StartTrade(player, args));
-//command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
+command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
 
 command('start', (player) => {
-  player.chat('Hello from monopolis-deadlock!')
-
-  for (let i of Array(5)) {
-    let randomHero = heroes[Math.floor(Math.random() * heroes.length)];
-    addBot({
-      name: randomHero.name,
-      team: 3,
-      hero: randomHero.id,
-      position: {x: -3250, y: -350, z: 1}
-    })
+  player.chat('Hello from monopolis-deadlock!');
+  if (IsInToolsMode()) {
+    for (let i of Array(5)) {
+      let randomHero = heroes[Math.floor(Math.random() * heroes.length)];
+      addBot({
+        name: randomHero.name,
+        team: 3,
+        hero: randomHero.id,
+        position: {x: -3250, y: -350, z: 1}
+      })
+    }
   }
   after(1, () => {
     for (let actor of players()) {
-        actor.player.freeCamera({x: -3200, y: -400, z: 100}, {pitch: 0, yaw: 180, roll: 0})
+        hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status"]);
+        actor.player.freeCamera({x: 325, y: -875, z: 500}, {pitch: 45, yaw: 90, roll: 0})
     }
     gamemode = new GameMode();
     gamemode.StartGame();
   })
-})
+});
 

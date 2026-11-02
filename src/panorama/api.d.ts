@@ -1106,10 +1106,37 @@ interface ImagePanel extends Panel {
     SetScaling(scale: ScalingFunction): void;
 }
 
+interface NumberEntry extends Panel {
+    value: number;
+    /** @default 0 */
+    min: number;
+    /** @default 1000000 */
+    max: number;
+    /** @default 1 */
+    increment: number;
+}
+
+type UserRichPresence = UserName;
+interface UserName extends Panel {
+    /**
+     * 64-bit Steam ID number.
+     */
+    steamid: string;
+    /**
+     * 32-bit Steam ID number.
+     */
+    accountid: string;
+}
+
+interface AvatarImage extends UserName {
+    SetAccountID(accountid: number): void;
+}
+
 interface PanoramaPanelNameMap {
     Panel: Panel;
     Label: LabelPanel;
     Image: ImagePanel;
+    NumberEntry: NumberEntry;
 }
 
 /**
@@ -1408,15 +1435,8 @@ interface DollarStatic {
      */
     LocalizePlural(token: string, value: number, parent?: PanelBase): string;
 
-    RegisterEventHandler<E extends PanoramaEvents.PanoramaEventName | string>(
-        eventName: E extends PanoramaEvents.PanoramaEventName ? E : string,
-        panel: PanelBase | string,
-        callback: PanoramaEvents.InferPanoramaCallback<E>,
-    ): void;
-    RegisterForUnhandledEvent<E extends PanoramaEvents.PanoramaEventName | string>(
-        eventName: E extends PanoramaEvents.PanoramaEventName ? E : string,
-        callback: PanoramaEvents.InferPanoramaCallback<E>,
-    ): UnhandledEventListenerID;
+    RegisterEventHandler(event: string, parent: PanelBase, handler: (...args: any[]) => void): void;
+    RegisterForUnhandledEvent(event: string, handler: (...args: any[]) => void): UnhandledEventListenerID;
     UnregisterForUnhandledEvent(event: string, handle: UnhandledEventListenerID): void;
     Each<T>(list: T[], callback: (item: T, index: number) => void): void;
     Each<T>(map: { [key: string]: T }, callback: (value: T, key: string) => void): void;
