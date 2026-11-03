@@ -10,6 +10,7 @@
     <styles>
         <!-- Included css style files go here -->
         <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="file://{resources}/styles/{addon}/wiki-heroes.css" />
         <include src="file://{resources}/styles/{addon}/hud.css" />
         <include src="file://{resources}/styles/{addon}/bottombar.css" />
         <include src="file://{resources}/styles/{addon}/propertymanagement.css" />

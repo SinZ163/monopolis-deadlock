@@ -19,8 +19,8 @@ const { TilesObj } = globalThis.MonopolisCommon;
 onStart(() => {
     precache({
         resources: [
-            "particles/abilities/mirage/mirage_dreamweaver_drowsy_debuff_counter_ring_top.vpcf",
-            "particles/modifiers/respawn_credit_buff_symbol.vpcf",
+            "particles/{addon}/dest-ring.vpcf",
+            "particles/{addon}/go-square.vpcf",
         ]
     })
 })
@@ -34,7 +34,7 @@ onWorld(() => {
     if (!name) continue;
     let worldpanel = new CPointClientUIWorldPanel(entity)
     let pos = entityPosition(entity)
-    writeField(entity, "CBaseClientUIEntity", "m_DialogXMLName", "string", "file://{resources}/layout/{addon}/sinz_worldpanel.xml")
+    writeField(entity, "CBaseClientUIEntity", "m_DialogXMLName", "string", "file://{resources}/layout/{addon}/sinz_worldpanel.xml");
     layoutPath = worldpanel.m_DialogXMLName!.slice(0, worldpanel.m_DialogXMLName?.lastIndexOf("/"));
     if (TilesObj[name].type === "property") {
       worldpanel.inputAddCSSClass(TilesObj[name].category)
@@ -53,7 +53,7 @@ let gamemode: GameMode = new GameMode();
 command("monopolis_endturn", (player, args) => gamemode.EndTurn(player, args));
 command("monopolis_requestdiceroll", (player, args) => gamemode.RollDice(player, args));
 command("monopolis_requestpurchase", (player, args) => gamemode.PurchaseProperty(player, args));
-//command("monopolis_requestrenovation", (player, args) => gamemode.ApplyRenovation(player, args));
+command("monopolis_requestrenovation", (player, args) => gamemode.ApplyRenovation(player, args));
 command("monopolis_requestpayrent", (player, args) => gamemode.PayRent(player, args));
 command("monopolis_requestauction", (player, args) => gamemode.StartAuction(player, args));
 command("monopolis_requestcard", (player, args) => gamemode.DrawCard(player, args));

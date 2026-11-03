@@ -55,8 +55,8 @@ Modlock.route("price_definition", (priceDefs) => {
         let panel = $.CreatePanel("Panel", $("#PropertyManagement"), `PropertyManagement_${tile}`);
         panel.BLoadLayoutSnippet("PropertyManagementRow");
         (panel.FindChildTraverse("PropertyName") as LabelPanel).text = locale[`tile_${tile}`];
-        //panel.FindChildTraverse("BuyHouse")?.SetPanelEvent("onactivate", () => AddHouse(tile));
-        //panel.FindChildTraverse("SellHouse")?.SetPanelEvent("onactivate", () => RemoveHouse(tile));
+        panel.FindChildTraverse("BuyHouse")?.SetPanelEvent("onactivate", () => AddHouse(tile));
+        panel.FindChildTraverse("SellHouse")?.SetPanelEvent("onactivate", () => RemoveHouse(tile));
         let colourPanel = panel.FindChildTraverse("PropertyColour");
         if (!colourPanel) return;
         switch (tile) {
@@ -299,7 +299,8 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             ($("#endturnLabel") as LabelPanel).text = locale["endturn"];
         }
     }
-    //let playerState = CustomNetTables.GetTableValue("player_state", turnState.pID.toFixed(0));
+    const playerStates = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_player_state", "{}")) as PanoramaPlayerState;
+    let playerState = playerStates[turnState.pID];
 
     switch(turnState.type) {
         case "start":
@@ -317,9 +318,9 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             break;
         case "payrent":
             $("#payrentLabel").SetDialogVariableInt("price", turnState.price);
-            //if (turnState.price > playerState.money) {
-            //     $.GetContextPanel().AddClass("SellStuffRequired");
-            //}
+            if (turnState.price > playerState.money) {
+                 $.GetContextPanel().AddClass("SellStuffRequired");
+            }
             break;
         case "jailed":
             $("#payrentLabel").SetDialogVariableInt("price", 50);
@@ -403,11 +404,10 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                     }
             }
             
-            /*if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
+            if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
                 let value = turnState.card.value;
                 if (turnState.card.type === "money_lose_others") {
-                    let playerStates = CustomNetTables.GetAllTableValues("player_state");
-                    let aliveOthers = playerStates.filter(player => player.value.pID !== turnState.pID && player.value.alive === 1);
+                    let aliveOthers = Object.values(playerStates).filter(player => player.pID !== turnState.pID && player.alive);
                     value = value * aliveOthers.length;
                 }
                 if (value > playerState.money) {
@@ -416,17 +416,17 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             }
             if (turnState.type === "auxroll_result" && turnState.value > playerState.money) {
                 $.GetContextPanel().AddClass("SellStuffRequired");
-            }*/
+            }
             // TODO: Repairs
             break;
         case "endturn":
-            /*$.Msg(playerState);
+            $.Msg(playerState);
             if (playerState.jailed > 0 && playerState.jailed < 3) {
                 $.GetContextPanel().AddClass("JailDice");
-                let diceRolls = toArray(turnState.rolls);
+                let diceRolls = turnState.rolls;
                 ($("#dice1") as LabelPanel).text = diceRolls[diceRolls.length - 1].dice1.toFixed(0);
                 ($("#dice2") as LabelPanel).text = diceRolls[diceRolls.length - 1].dice2.toFixed(0);
-            }*/
+            }
             break;
     }
 
@@ -537,39 +537,20 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
 
     }
 });
-/*
 
 function AddHouse(tile: PurchasableTiles) {
     $.Msg("Adding house to ", tile);
-    let property = CustomNetTables.GetAllTableValues("property_ownership").find(kv => kv.key === tile)?.value;
+    const propertyOwnerships = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_property_ownership", "{}")) as Record<PurchasableTiles, PropertyOwnership>;
+    const property = propertyOwnerships[tile];
     if (!property) return;
-    if (property.houseCount > 5) return
-    GameEvents.SendCustomGameEventToServer("monopolis_requestrenovation", {property: tile, houseCount: property.houseCount + 1});
+    if (property.houseCount > 5) return;
+    $.DispatchEvent('CitadelConCommand', `monopolis_requestrenovation ${JSON.stringify({property: tile, houseCount: property.houseCount + 1})}`);
 }
 function RemoveHouse(tile: PurchasableTiles) {
     $.Msg("Removing house from ", tile);
-    let property = CustomNetTables.GetAllTableValues("property_ownership").find(kv => kv.key === tile)?.value;
+    const propertyOwnerships = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_property_ownership", "{}")) as Record<PurchasableTiles, PropertyOwnership>;
+    const property = propertyOwnerships[tile];
     if (!property) return;
-    if (property.houseCount < -1) return
-    GameEvents.SendCustomGameEventToServer("monopolis_requestrenovation", {property: tile, houseCount: property.houseCount - 1});
+    if (property.houseCount < -1) return;
+    $.DispatchEvent('CitadelConCommand', `monopolis_requestrenovation ${JSON.stringify({property: tile, houseCount: property.houseCount - 1})}`);
 }
-
-CustomNetTables.SubscribeNetTableListener("property_ownership", (_, tile, value) => OnPropertyChanged(tile, value));
-
-
-function ColorToHexCode2(color: number) {
-	var red = (color & 0xff).toString(16);
-	var green = ((color & 0xff00) >> 8).toString(16);
-	var blue = ((color & 0xff0000) >> 16).toString(16);
-	if (red == "0") {
-		red = "00"
-	}
-	if (green == "0") {
-		green = "00"
-	}
-	if (blue == "0") {
-		blue = "00"
-	}
-	return '#' + red + green + blue;
-}
-*/

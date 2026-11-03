@@ -13,8 +13,6 @@ function cronJob() {
 
             let spaceInfo = TilesObj[space];
             
-            // TODO: Corners get their own
-            // TODO: ImageSpaces get their own
             if (spaceInfo.type === "misc") {
                 $.CreatePanel("Panel", $.GetContextPanel(), space).BLoadLayout(layoutBasePath + "corner_space.xml", false, false);
             } else if (spaceInfo.type === "card") {

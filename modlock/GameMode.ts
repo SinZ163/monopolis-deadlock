@@ -1,4 +1,4 @@
-import { after, createEntity, createParticle, entityPosition, findEntitiesByName, MovementSample, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
+import { after, createEntity, createParticle, entityPosition, findEntitiesByName, killEntity, MovementSample, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
 import { IsInToolsMode } from "./main";
@@ -430,11 +430,13 @@ export class GameMode {
         }
         CustomNetTables.SetTableValue("misc", "current_turn", {type: "card_result", pID: current.pID, rolls: current.turnState.rolls, card, potentialBankrupt: -1});
     }
-    ApplyRenovation(event: { property: PurchasableTiles; houseCount: number; PlayerID: PlayerID; }): void {
+    ApplyRenovation(player: Player, args: string): void {
+        const event = JSON.parse(args) as { property: PurchasableTiles; houseCount: number; }; 
+
         let current = this.GetCurrentPlayerState();
         
         // TODO: Fix
-        //if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
 
         let tile = TilesObj[event.property] as (RailroadDefinition | UtilityDefinition | PropertyDefinition);
         let propertyState = this.propertyOwnership.GetValue(tile.id);
@@ -707,12 +709,16 @@ export class GameMode {
             let asshole = this.playerState.GetValue(tostring(current.turnState.potentialBankrupt));
             asshole.money += current.money;
             this.SavePlayer(asshole);
-            //let assholePlayer = PlayerResource.GetPlayer(asshole.pID);
-            //let assholeHero = assholePlayer?.GetAssignedHero();
-            //hero?.Kill(undefined, assholeHero);
+            killEntity({
+                attacker: asshole.connection.player.pawn()!.entity,
+                victim: current.connection.player.pawn()!.entity,
+            })
         } else {
-            //hero?.Kill(undefined, undefined);
+            current.connection.player.kill();
         }
+        after(3, () => {
+            current.connection.player.spectate();
+        })
         for (let [id, state] of modifiedProperties) {
             this.propertyOwnership.SetValue(id as PurchasableTiles, state);
         }
@@ -1025,11 +1031,12 @@ export class GameMode {
 
         if (current.location > futureLocation && !backwards) {
             print("We are spawning go??");
-            let pos = this.GetStartLocationOfTile(0);
+            let pos = vector.add(this.GetStartLocationOfTile(0), vector.at(30, 0, 0));
             this.goPos = pos;
             this.goParticle = createParticle({
-                resource: "particles/modifiers/respawn_credit_buff_symbol.vpcf",
+                resource: "particles/{addon}/go-square.vpcf",
                 position: pos,
+                point: {index: 0, position: pos},
             })
         }
 
@@ -1098,8 +1105,9 @@ export class GameMode {
         this.SavePlayer(current);
         this.destPos = position;
         this.destParticle = createParticle({
-            resource: "particles/abilities/mirage/mirage_dreamweaver_drowsy_debuff_counter_ring_top.vpcf",
+            resource: "particles/{addon}/dest-ring.vpcf",
             position,
+            point: {index: 11, position},
         });
         current.connection.player.watchMovement(true);
     }
