@@ -308,6 +308,7 @@ interface PlayerState {
     location: number;
     jailed: number;
     alive: boolean;
+    heroId: number;
 }
 
 interface PropertyOwnership {

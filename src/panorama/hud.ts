@@ -1,5 +1,40 @@
 const MOVEMENT_SCHEDULE_TIMER = 0.1;
 
+(() => {
+    let parent = $.GetContextPanel().GetParent();
+    do {
+        parent = parent!.GetParent();
+    } while (parent!.type !== "CitadelHud");
+    $.Msg("Parent", parent);
+    const topbar = parent?.FindChildTraverse("TopBar");
+    $.Msg("TopBar", topbar);
+    const friendlyTeam = topbar?.FindChildTraverse("TeamFriendly");
+    $.Msg("friendly", friendlyTeam);
+    const player0 = friendlyTeam?.FindChildTraverse("TopBarPlayer0");
+    $.Msg("Player0", player0)
+    const playerBadge = player0?.FindChildTraverse("HeroBadge");
+    $.Msg("playerBadge", playerBadge)
+})();
+
+
+function altDump(name:string, object: Record<string,any>) {
+    $.Msg("=====================================");
+    $.Msg("This is a giant dump in " + name);
+    $.Msg("=====================================");
+    for (var v in object) {
+        if(typeof object[v] == "object") {
+            $.Msg(v + " = {");
+            for (let w in object[v]) {
+                $.Msg("\t"+v+"." + w + " = " + (""+object[v][w]));
+            }
+            $.Msg("}");
+        } else {
+            $.Msg(name+"." + v + " = (" + typeof object[v] + ") " + object[v]);
+        }
+    }
+    $.Msg("=====================================");
+}
+
 $.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
     $.Msg("Unhandled Sound", sound);
     $.Msg("player", $.GetContextPanel().GetAttributeString("modlock_route_player_state", "default_player"));
@@ -16,7 +51,7 @@ $.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
             existingPanel.AddClass("Hidden");
 
             existingPanel.BLoadLayoutSnippet("MoneyTableRow");
-            var propertyContainer = $.CreatePanel("Panel", existingPanel, `MoneyPropertyContainer_${pID}`);
+            var propertyContainer = $.CreatePanel("Panel", existingPanel.FindChildTraverse("PlayerContents"), `MoneyPropertyContainer_${pID}`);
             propertyContainer.AddClass("MoneyPropertyContainer");
         }
         let existingTradePanel = $(`#TradePlayerSlot_${pID}`);
@@ -121,6 +156,8 @@ Modlock.route("price_definition", (priceDefs) => {
             let propTile = $.CreatePanel("Panel", existingCategoryContainer, `MoneyProperty_${pID}_${tile}`);
             propTile.AddClass(`MoneyPropertyCategoryCell`);
             propTile.AddClass(tileInfo.type === "property" ? tileInfo.category : tileInfo.type);
+            $.CreatePanel("Panel", propTile, "Body");
+            $.CreatePanel("Panel", propTile, "MortgageSlash");
             
             const categoryTradeContainerId = `TradePlayerSlot_${pID}_${tileInfo.categoryId}`;
             let tradePropertyContainer = $(`#TradePropertyContainer_${pID}`);
@@ -130,6 +167,9 @@ Modlock.route("price_definition", (priceDefs) => {
                 existingTradeCategoryContainer.AddClass("TradePlayerSlotCategoryContainer");
             }
             let tradeTile = $.CreatePanel("Panel", existingTradeCategoryContainer, `TradeProperty_${pID}_${tile}`);
+            
+            $.CreatePanel("Panel", tradeTile, "Body");
+            $.CreatePanel("Panel", tradeTile, "MortgageSlash");
             tradeTile.SetDraggable(true);
             tradeTile.AddClass(`TradePropertyCategoryCell`);
             tradeTile.AddClass(tileInfo.type === "property" ? tileInfo.category : tileInfo.type);
@@ -201,17 +241,14 @@ function OnPropertyChanged(tile: PurchasableTiles, value: PropertyOwnership) {
     for (let {pID} of Object.values(playerStates)) {
         let playerTile = $(`#MoneyProperty_${pID}_${tile}`);
         playerTile.SetHasClass("Unowned", value.owner === -1);
-        playerTile.SetHasClass("Hotel", value.owner === pID && value.houseCount === 5);
-        playerTile.SetHasClass("House", value.owner === pID && value.houseCount > 0 && value.houseCount < 5);
-        playerTile.SetHasClass("Owner", value.owner === pID && value.houseCount === 0);
-        playerTile.SetHasClass("Mortgaged", value.owner === pID && value.houseCount === -1);
+        playerTile.SetHasClass("Owner", value.owner === pID);
+        playerTile.SetHasClass("Mortgaged", value.houseCount === -1);
         playerTile.SetHasClass("Owned", value.owner > -1 && value.owner !== pID);
         let tradeTile = $(`#TradeProperty_${pID}_${tile}`);
         tradeTile.SetHasClass("Unowned", value.owner === -1);
-        tradeTile.SetHasClass("Hotel", value.owner === pID && value.houseCount === 5);
-        tradeTile.SetHasClass("House", value.owner === pID && value.houseCount > 0 && value.houseCount < 5);
-        tradeTile.SetHasClass("Owner", value.owner === pID && value.houseCount === 0);
-        tradeTile.SetHasClass("Mortgaged", value.owner === pID && value.houseCount === -1);
+        tradeTile.SetHasClass("Owner", value.owner === pID);
+        tradeTile.SetHasClass("Upgrades", value.houseCount > 0);
+        tradeTile.SetHasClass("Mortgaged", value.houseCount === -1);
         tradeTile.SetHasClass("Owned", value.owner > -1 && value.owner !== pID);
     }
     // TODO: Proper naming convention for houses / hotels
@@ -275,6 +312,8 @@ Modlock.route("current_turn", (turnState: TurnState) => {
         $.GetContextPanel().RemoveClass(`Turn_${currentTurn}`);
         $.GetContextPanel().AddClass(`Turn_${turnState.pID}`);
         $.GetContextPanel().SetAttributeInt("currentturn", turnState.pID);
+        $(`#MoneyTable_${currentTurn}`)?.RemoveClass("CurrentTurn");
+        $(`#MoneyTable_${turnState.pID}`).AddClass("CurrentTurn");
     }
 
     let diceRolls = turnState.rolls;
@@ -372,35 +411,30 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             } else {
                 text = locale["card_" + turnState.card.type];
             }
-            ($("#CardResultButtonText") as LabelPanel).text = text;
             let resultText = locale[turnState.card.text];
-            ($("#CardResultText") as LabelPanel).text = resultText;
-            if (colourClass !== "") {
-                $("#CardResultButton").AddClass(colourClass);
-            }
             // Functional logic
             switch(turnState.card.type) {
                 case "money_gain":
                 case "money_gain_others":
                 case "money_lose":
                 case "money_lose_others":
-                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
-                    ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
+                    resultText = resultText.replaceAll("{d:value}", turnState.card.value.toFixed(0));
+                    text = text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
                     break;
                 case "repairs":
-                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:house}", turnState.card.house.toFixed(0));
-                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:hotel}", turnState.card.hotel.toFixed(0));
+                    resultText = resultText.replaceAll("{d:house}", turnState.card.house.toFixed(0))
+                                        .replaceAll("{d:hotel}", turnState.card.hotel.toFixed(0));
                     break;
                 case "teleport":
-                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{s:dest}", locale["tile_" + turnState.card.dest]);
+                    resultText = resultText.replaceAll("{s:dest}", locale["tile_" + turnState.card.dest]);
                     break;
                 case "teleport_relative":
-                    ($("#CardResultText") as LabelPanel).text = ($("#CardResultText") as LabelPanel).text.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
-                    ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
+                    resultText = resultText.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
+                    text = text.replaceAll("{d:value}", Math.abs(turnState.card.value).toFixed(0));
                     break;
                 case "teleport_category":
                     if (turnState.type === "auxroll_result") {
-                        ($("#CardResultButtonText") as LabelPanel).text = ($("#CardResultButtonText") as LabelPanel).text.replaceAll("{d:price}", turnState.value.toFixed(0));
+                        text = text.replaceAll("{d:price}", turnState.value.toFixed(0));
                     }
             }
             
@@ -417,7 +451,13 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             if (turnState.type === "auxroll_result" && turnState.value > playerState.money) {
                 $.GetContextPanel().AddClass("SellStuffRequired");
             }
-            // TODO: Repairs
+            // TODO: Repairs!
+            ($("#CardResultText") as LabelPanel).text = resultText;
+            ($("#CardResultButtonText") as LabelPanel).text = text;
+            
+            if (colourClass !== "") {
+                $("#CardResultButton").AddClass(colourClass);
+            }
             break;
         case "endturn":
             $.Msg(playerState);
@@ -483,7 +523,7 @@ function AuctionWithdraw() {
 type PanoramaPlayerState = Record<string, PlayerState & { steamId: string, connection: {name: string, bot: boolean}} >;
 
 Modlock.route("player_state", (state: PanoramaPlayerState) => {
-    $.Msg("Player state", state);
+    $.Msg("Player state!", state);
     if (!state) return;
 
     const turnState = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_current_turn", "{}")) as TurnState;
@@ -495,17 +535,27 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
 
         if (existingPanel.BHasClass("Hidden")) {
             existingPanel.RemoveClass("Hidden");
-            (existingPanel.FindChildTraverse("Image") as AvatarImage).steamid = player.steamId;
-            (existingPanel.FindChildTraverse("Name") as UserName).steamid = player.steamId;
+            existingPanel.SetHasClass("IsBot", player.connection.bot);
+            existingPanel.AddClass(`hero_${player.heroId}`);
+            (existingPanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
+            (existingPanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
+            (existingPanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = player.steamId;
+            (existingPanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
         if (existingTradePanel.BHasClass("Hidden")) {
             existingTradePanel.RemoveClass("Hidden");
+
+            existingTradePanel.SetHasClass("IsBot", player.connection.bot);
+            existingTradePanel.AddClass(`hero_${player.heroId}`);
+            (existingTradePanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
+            (existingTradePanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
             (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = player.steamId;
-            (existingTradePanel.FindChildTraverse("PlayerName") as UserName).steamid = player.steamId;
+            (existingTradePanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
 
 
         (existingPanel.FindChildTraverse("GoldAmount") as LabelPanel).text = player.money.toFixed(0);
+        (existingTradePanel.FindChildTraverse("GoldAmount") as LabelPanel).text = player.money.toFixed(0);
         //existingPanel.style.borderColor = ColorToHexCode2(Players.GetPlayerColor(Number.parseInt(pID) as PlayerID));
 
         let currentTurn = $.GetContextPanel().GetAttributeInt("currentturn", -1);

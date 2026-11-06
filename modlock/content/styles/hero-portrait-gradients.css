@@ -1,0 +1,1007 @@
+/* Generated from https://deadlock.wiki/Template:Infobox_hero/themes.css, keyed by Deadlock hero id. Put class hero_<id> on a parent (e.g. the MoneyTableRow).
+   All colours are solid (no alpha). Card gradients are pre-blended onto offBlack #10130D and brightness-normalised
+   so bright heroes (Pocket, Venator) and dark ones (Warden) read at a similar strength.
+   .HeroImageContainer: coin gradient (color2 -> color1 -> color1-grad) + resting border (color2).
+   .PlayerContainer: 3px top accent in color1 (v6) + card gradient (hero colour -> darker -> offBlack). #PlayerName: text-title colour.
+   .TradePlayerSlot: same card gradient as .PlayerContainer, for the trade menu slots (no top accent).
+   Heroes with no wiki theme use the neutral default. Load .ActiveTurn rules after this file. */
+
+/* Default */
+.HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #7A7F85 ), color-stop( 0.55, #3A4148 ), to( #2A3036 ) );
+	border-bottom: 4px solid #8A8F94;
+}
+.PlayerContainer
+{
+	border-top: 3px solid #3A4148;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #303639 ), color-stop( 0.35, #1A1E1C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #303639 ), color-stop( 0.35, #1A1E1C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+#PlayerName
+{
+	color: #FFEFD7;
+}
+
+/* Infernus (hero_inferno) */
+.hero_1 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #E07942 ), color-stop( 0.55, #C93C26 ), to( #9E3B2B ) );
+	border-bottom: 4px solid #E68849;
+}
+.hero_1.PlayerContainer
+{
+	border-top: 3px solid #C93C26;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #5F2418 ), color-stop( 0.35, #2E1C13 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_1.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #5F2418 ), color-stop( 0.35, #2E1C13 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_1 #PlayerName
+{
+	color: #FFE6C9;
+}
+
+/* Seven (hero_gigawatt) */
+.hero_2 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #D39637 ), color-stop( 0.55, #8C5A0B ), to( #753E0F ) );
+	border-bottom: 4px solid #E5A542;
+}
+.hero_2.PlayerContainer
+{
+	border-top: 3px solid #8C5A0B;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #49340C ), color-stop( 0.35, #271D0D ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_2.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #49340C ), color-stop( 0.35, #271D0D ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_2 #PlayerName
+{
+	color: #F7EAC3;
+}
+
+/* Vindicta (hero_hornet) */
+.hero_3 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AC89BF ), color-stop( 0.55, #54617F ), to( #4D5A76 ) );
+	border-bottom: 4px solid #C293CF;
+}
+.hero_3.PlayerContainer
+{
+	border-top: 3px solid #54617F;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #303843 ), color-stop( 0.35, #1F2426 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_3.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #303843 ), color-stop( 0.35, #1F2426 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_3 #PlayerName
+{
+	color: #C6E6FF;
+}
+
+/* Lady Geist (hero_ghost) */
+.hero_4 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #59C582 ), color-stop( 0.55, #098959 ), to( #0F6D4C ) );
+	border-bottom: 4px solid #6DD48C;
+}
+.hero_4.PlayerContainer
+{
+	border-top: 3px solid #098959;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0D3F29 ), color-stop( 0.35, #102419 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_4.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0D3F29 ), color-stop( 0.35, #102419 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_4 #PlayerName
+{
+	color: #DCFFE7;
+}
+
+/* Abrams (hero_atlas) */
+.hero_6 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #908544 ), color-stop( 0.55, #264B66 ), to( #264B66 ) );
+	border-bottom: 4px solid #AB933C;
+}
+.hero_6.PlayerContainer
+{
+	border-top: 3px solid #264B66;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1F3A4B ), color-stop( 0.35, #18272C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_6.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1F3A4B ), color-stop( 0.35, #18272C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_6 #PlayerName
+{
+	color: #FFEEB0;
+}
+
+/* Wraith (hero_wraith) */
+.hero_7 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #B667B9 ), color-stop( 0.55, #683977 ), to( #654086 ) );
+	border-bottom: 4px solid #C972C9;
+}
+.hero_7.PlayerContainer
+{
+	border-top: 3px solid #683977;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #492C52 ), color-stop( 0.35, #2C2235 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_7.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #492C52 ), color-stop( 0.35, #2C2235 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_7 #PlayerName
+{
+	color: #FFD8F3;
+}
+
+/* McGinnis (hero_forge) */
+.hero_8 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AA9842 ), color-stop( 0.55, #315182 ), to( #315182 ) );
+	border-bottom: 4px solid #C8AA32;
+}
+.hero_8.PlayerContainer
+{
+	border-top: 3px solid #315182;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #243853 ), color-stop( 0.35, #1A2630 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_8.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #243853 ), color-stop( 0.35, #1A2630 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_8 #PlayerName
+{
+	color: #FFF0AD;
+}
+
+/* Paradox (hero_chrono) */
+.hero_10 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #6098BD ), color-stop( 0.55, #983952 ), to( #7F2B41 ) );
+	border-bottom: 4px solid #52B0D8;
+}
+.hero_10.PlayerContainer
+{
+	border-top: 3px solid #983952;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #592732 ), color-stop( 0.35, #2E191B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_10.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #592732 ), color-stop( 0.35, #2E191B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_10 #PlayerName
+{
+	color: #C9EEFF;
+}
+
+/* Dynamo (hero_dynamo) */
+.hero_11 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #A89039 ), color-stop( 0.55, #18637F ), to( #1B4656 ) );
+	border-bottom: 4px solid #CC9B28;
+}
+.hero_11.PlayerContainer
+{
+	border-top: 3px solid #18637F;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #143C47 ), color-stop( 0.35, #132020 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_11.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #143C47 ), color-stop( 0.35, #132020 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_11 #PlayerName
+{
+	color: #FFE89E;
+}
+
+/* Kelvin (hero_kelvin) */
+.hero_12 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #A7A994 ), color-stop( 0.55, #3E6276 ), to( #335368 ) );
+	border-bottom: 4px solid #C1BB9B;
+}
+.hero_12.PlayerContainer
+{
+	border-top: 3px solid #3E6276;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #273A41 ), color-stop( 0.35, #192323 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_12.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #273A41 ), color-stop( 0.35, #192323 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_12 #PlayerName
+{
+	color: #FFF8D8;
+}
+
+/* Haze (hero_haze) */
+.hero_13 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #D48C34 ), color-stop( 0.55, #562913 ), to( #683C1E ) );
+	border-bottom: 4px solid #F3A53C;
+}
+.hero_13.PlayerContainer
+{
+	border-top: 3px solid #562913;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #442412 ), color-stop( 0.35, #312213 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_13.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #442412 ), color-stop( 0.35, #312213 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_13 #PlayerName
+{
+	color: #D8FFF4;
+}
+
+/* Holliday (hero_astro) */
+.hero_14 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #92A18A ), color-stop( 0.55, #934D14 ), to( #753D22 ) );
+	border-bottom: 4px solid #92B6A7;
+}
+.hero_14.PlayerContainer
+{
+	border-top: 3px solid #934D14;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #513010 ), color-stop( 0.35, #291D12 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_14.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #513010 ), color-stop( 0.35, #291D12 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_14 #PlayerName
+{
+	color: #FFDBBF;
+}
+
+/* Bebop (hero_bebop) */
+.hero_15 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #C27B63 ), color-stop( 0.55, #683931 ), to( #5E3C35 ) );
+	border-bottom: 4px solid #D88C70;
+}
+.hero_15.PlayerContainer
+{
+	border-top: 3px solid #683931;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #502F27 ), color-stop( 0.35, #2C221C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_15.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #502F27 ), color-stop( 0.35, #2C221C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_15 #PlayerName
+{
+	color: #FFD1D1;
+}
+
+/* Calico (hero_nano) */
+.hero_16 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AA73C2 ), color-stop( 0.55, #572798 ), to( #472579 ) );
+	border-bottom: 4px solid #BF86CC;
+}
+.hero_16.PlayerContainer
+{
+	border-top: 3px solid #572798;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #452275 ), color-stop( 0.35, #251A36 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_16.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #452275 ), color-stop( 0.35, #251A36 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_16 #PlayerName
+{
+	color: #FFEEB2;
+}
+
+/* Grey Talon (hero_orion) */
+.hero_17 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #61AA83 ), color-stop( 0.55, #326850 ), to( #315746 ) );
+	border-bottom: 4px solid #6DBA90;
+}
+.hero_17.PlayerContainer
+{
+	border-top: 3px solid #326850;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #213D2E ), color-stop( 0.35, #18241B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_17.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #213D2E ), color-stop( 0.35, #18241B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_17 #PlayerName
+{
+	color: #D8FFD8;
+}
+
+/* Mo & Krill (hero_krill) */
+.hero_18 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #C3924C ), color-stop( 0.55, #4F4E43 ), to( #404039 ) );
+	border-bottom: 4px solid #E0A34E;
+}
+.hero_18.PlayerContainer
+{
+	border-top: 3px solid #4F4E43;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #38382F ), color-stop( 0.35, #1F211B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_18.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #38382F ), color-stop( 0.35, #1F211B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_18 #PlayerName
+{
+	color: #FFF3D6;
+}
+
+/* Shiv (hero_shiv) */
+.hero_19 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #C35B73 ), color-stop( 0.55, #A02630 ), to( #912B34 ) );
+	border-bottom: 4px solid #CC6884;
+}
+.hero_19.PlayerContainer
+{
+	border-top: 3px solid #A02630;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #641E21 ), color-stop( 0.35, #361A18 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_19.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #641E21 ), color-stop( 0.35, #361A18 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_19 #PlayerName
+{
+	color: #FFC6D3;
+}
+
+/* Ivy (hero_tengu) */
+.hero_20 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #9E959A ), color-stop( 0.55, #66662C ), to( #474723 ) );
+	border-bottom: 4px solid #ACA1B6;
+}
+.hero_20.PlayerContainer
+{
+	border-top: 3px solid #66662C;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #37391B ), color-stop( 0.35, #1D1F12 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_20.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #37391B ), color-stop( 0.35, #1D1F12 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_20 #PlayerName
+{
+	color: #E5E7B4;
+}
+
+/* Warden (hero_warden) */
+.hero_25 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AA6C76 ), color-stop( 0.55, #393A5B ), to( #373754 ) );
+	border-bottom: 4px solid #C6797D;
+}
+.hero_25.PlayerContainer
+{
+	border-top: 3px solid #393A5B;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2F3048 ), color-stop( 0.35, #1F2028 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_25.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2F3048 ), color-stop( 0.35, #1F2028 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_25 #PlayerName
+{
+	color: #D6E3FF;
+}
+
+/* Yamato (hero_yamato) */
+.hero_27 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #C45057 ), color-stop( 0.55, #4C467F ), to( #43426B ) );
+	border-bottom: 4px solid #E2524D;
+}
+.hero_27.PlayerContainer
+{
+	border-top: 3px solid #4C467F;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #363356 ), color-stop( 0.35, #20222B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_27.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #363356 ), color-stop( 0.35, #20222B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_27 #PlayerName
+{
+	color: #FFD1D1;
+}
+
+/* Lash (hero_lash) */
+.hero_31 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #6682A6 ), color-stop( 0.55, #424856 ), to( #3C414E ) );
+	border-bottom: 4px solid #6F90BA;
+}
+.hero_31.PlayerContainer
+{
+	border-top: 3px solid #424856;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #333840 ), color-stop( 0.35, #1F2324 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_31.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #333840 ), color-stop( 0.35, #1F2324 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_31 #PlayerName
+{
+	color: #D7E2EF;
+}
+
+/* Viscous (hero_viscous) */
+.hero_35 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #7BBA59 ), color-stop( 0.55, #23681A ), to( #265720 ) );
+	border-bottom: 4px solid #91CE69;
+}
+.hero_35.PlayerContainer
+{
+	border-top: 3px solid #23681A;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1A3F14 ), color-stop( 0.35, #162512 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_35.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1A3F14 ), color-stop( 0.35, #162512 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_35 #PlayerName
+{
+	color: #CDEFB6;
+}
+
+/* Wrecker (hero_wrecker) */
+.hero_48 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #E5D177 ), color-stop( 0.55, #a439ef ), to( #3c730f ) );
+	border-bottom: 4px solid #f5f759;
+}
+.hero_48.PlayerContainer
+{
+	border-top: 3px solid #a439ef;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #4D236A ), color-stop( 0.35, #19270D ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_48.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #4D236A ), color-stop( 0.35, #19270D ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_48 #PlayerName
+{
+	color: #f8f2d9;
+}
+
+/* Pocket (hero_synth) */
+.hero_50 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #BDC240 ), color-stop( 0.55, #6B6B14 ), to( #535416 ) );
+	border-bottom: 4px solid #D1D84B;
+}
+.hero_50.PlayerContainer
+{
+	border-top: 3px solid #6B6B14;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #383910 ), color-stop( 0.35, #1F210F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_50.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #383910 ), color-stop( 0.35, #1F210F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_50 #PlayerName
+{
+	color: #FCFFAD;
+}
+
+/* Mirage (hero_mirage) */
+.hero_52 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #B6895D ), color-stop( 0.55, #552E68 ), to( #452953 ) );
+	border-bottom: 4px solid #CEA05A;
+}
+.hero_52.PlayerContainer
+{
+	border-top: 3px solid #552E68;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #442751 ), color-stop( 0.35, #241B27 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_52.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #442751 ), color-stop( 0.35, #241B27 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_52 #PlayerName
+{
+	color: #FFE1BC;
+}
+
+/* Fathom (hero_slork) */
+.hero_53 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #3B9AA3 ), color-stop( 0.55, #096050 ), to( #073c40 ) );
+	border-bottom: 4px solid #47a9b8;
+}
+.hero_53.PlayerContainer
+{
+	border-top: 3px solid #096050;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0C3E33 ), color-stop( 0.35, #0D1F1B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_53.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0C3E33 ), color-stop( 0.35, #0D1F1B ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_53 #PlayerName
+{
+	color: #d6e7f8;
+}
+
+/* Vyper (hero_viper) */
+.hero_58 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #BF954D ), color-stop( 0.55, #4D6B34 ), to( #3E562A ) );
+	border-bottom: 4px solid #DBA053;
+}
+.hero_58.PlayerContainer
+{
+	border-top: 3px solid #4D6B34;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2C3C1F ), color-stop( 0.35, #1B2314 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_58.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2C3C1F ), color-stop( 0.35, #1B2314 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_58 #PlayerName
+{
+	color: #FBFF9B;
+}
+
+/* Sinclair (hero_magician) */
+.hero_60 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #A2B9C3 ), color-stop( 0.55, #343B51 ), to( #303647 ) );
+	border-bottom: 4px solid #BED9E0;
+}
+.hero_60.PlayerContainer
+{
+	border-top: 3px solid #343B51;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2B3140 ), color-stop( 0.35, #1C2023 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_60.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2B3140 ), color-stop( 0.35, #1C2023 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_60 #PlayerName
+{
+	color: #C1D8FF;
+}
+
+/* Trapper (hero_trapper) */
+.hero_61 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #CA7652 ), color-stop( 0.55, #2954d1 ), to( #243c98 ) );
+	border-bottom: 4px solid #f27f32;
+}
+.hero_61.PlayerContainer
+{
+	border-top: 3px solid #2954d1;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1C336F ), color-stop( 0.35, #151D30 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_61.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1C336F ), color-stop( 0.35, #151D30 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_61 #PlayerName
+{
+	color: #f9d1b7;
+}
+
+/* Raven (hero_operative) */
+.hero_62 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #99A9B9 ), color-stop( 0.55, #44444b ), to( #56626c ) );
+	border-bottom: 4px solid #aec2d4;
+}
+.hero_62.PlayerContainer
+{
+	border-top: 3px solid #44444b;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #36373B ), color-stop( 0.35, #2A3030 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_62.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #36373B ), color-stop( 0.35, #2A3030 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_62 #PlayerName
+{
+	color: #fcf0c1;
+}
+
+/* Mina (hero_vampirebat) */
+.hero_63 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #CA4447 ), color-stop( 0.55, #9B1A1E ), to( #8E131A ) );
+	border-bottom: 4px solid #D64E51;
+}
+.hero_63.PlayerContainer
+{
+	border-top: 3px solid #9B1A1E;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #6A1818 ), color-stop( 0.35, #391311 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_63.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #6A1818 ), color-stop( 0.35, #391311 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_63 #PlayerName
+{
+	color: #FFD3D3;
+}
+
+/* Drifter (hero_drifter) */
+.hero_64 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #904745 ), color-stop( 0.55, #510D0D ), to( #5D1414 ) );
+	border-bottom: 4px solid #A05653;
+}
+.hero_64.PlayerContainer
+{
+	border-top: 3px solid #510D0D;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #410E0D ), color-stop( 0.35, #2D1310 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_64.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #410E0D ), color-stop( 0.35, #2D1310 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_64 #PlayerName
+{
+	color: #FFB5B5;
+}
+
+/* Venator (hero_priest) */
+.hero_65 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AC6FB2 ), color-stop( 0.55, #8F3478 ), to( #66255D ) );
+	border-bottom: 4px solid #B37EC0;
+}
+.hero_65.PlayerContainer
+{
+	border-top: 3px solid #8F3478;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #572549 ), color-stop( 0.35, #281823 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_65.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #572549 ), color-stop( 0.35, #281823 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_65 #PlayerName
+{
+	color: #F9D1FF;
+}
+
+/* Victor (hero_frank) */
+.hero_66 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #6C9577 ), color-stop( 0.55, #3D5443 ), to( #354538 ) );
+	border-bottom: 4px solid #78A584;
+}
+.hero_66.PlayerContainer
+{
+	border-top: 3px solid #3D5443;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2C3B2E ), color-stop( 0.35, #1B221A ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_66.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #2C3B2E ), color-stop( 0.35, #1B221A ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_66 #PlayerName
+{
+	color: #C8FFC1;
+}
+
+/* Paige (hero_bookworm) */
+.hero_67 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #58D181 ), color-stop( 0.55, #1C6B4E ), to( #1A6348 ) );
+	border-bottom: 4px solid #67EA8E;
+}
+.hero_67.PlayerContainer
+{
+	border-top: 3px solid #1C6B4E;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #163E2D ), color-stop( 0.35, #12271C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_67.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #163E2D ), color-stop( 0.35, #12271C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_67 #PlayerName
+{
+	color: #C1FFED;
+}
+
+/* Boho (hero_boho) */
+.hero_68 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #DCAE6D ), color-stop( 0.55, #9750bf ), to( #643182 ) );
+	border-bottom: 4px solid #edc558;
+}
+.hero_68.PlayerContainer
+{
+	border-top: 3px solid #9750bf;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #482C57 ), color-stop( 0.35, #211925 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_68.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #482C57 ), color-stop( 0.35, #211925 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_68 #PlayerName
+{
+	color: #87e897;
+}
+
+/* The Doorman (hero_doorman) */
+.hero_69 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #B58F45 ), color-stop( 0.55, #703d06 ), to( #83490A ) );
+	border-bottom: 4px solid #C6A355;
+}
+.hero_69.PlayerContainer
+{
+	border-top: 3px solid #703d06;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #512F08 ), color-stop( 0.35, #37250C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_69.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #512F08 ), color-stop( 0.35, #37250C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_69 #PlayerName
+{
+	color: #FFE9BF;
+}
+
+/* Billy (hero_punkgoat) */
+.hero_72 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #B79A26 ), color-stop( 0.55, #494230 ), to( #494230 ) );
+	border-bottom: 4px solid #D3B023;
+}
+.hero_72.PlayerContainer
+{
+	border-top: 3px solid #494230;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #3B3627 ), color-stop( 0.35, #25251A ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_72.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #3B3627 ), color-stop( 0.35, #25251A ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_72 #PlayerName
+{
+	color: #EDC2DB;
+}
+
+/* Graves (hero_necro) */
+.hero_76 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #ACB953 ), color-stop( 0.55, #616E15 ), to( #4D5512 ) );
+	border-bottom: 4px solid #BFCC63;
+}
+.hero_76.PlayerContainer
+{
+	border-top: 3px solid #616E15;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #333B10 ), color-stop( 0.35, #1D210E ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_76.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #333B10 ), color-stop( 0.35, #1D210E ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_76 #PlayerName
+{
+	color: #F5FFAA;
+}
+
+/* Apollo (hero_fencer) */
+.hero_77 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #DC7158 ), color-stop( 0.55, #F21D1D ), to( #AF1818 ) );
+	border-bottom: 4px solid #D68667;
+}
+.hero_77.PlayerContainer
+{
+	border-top: 3px solid #F21D1D;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #6A1713 ), color-stop( 0.35, #30140F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_77.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #6A1713 ), color-stop( 0.35, #30140F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_77 #PlayerName
+{
+	color: #FFE5D6;
+}
+
+/* Deadman Danny (hero_deadpack) */
+.hero_78 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #F2C854 ), color-stop( 0.55, #cd5c18 ), to( #934b1f ) );
+	border-bottom: 4px solid #FBE363;
+}
+.hero_78.PlayerContainer
+{
+	border-top: 3px solid #cd5c18;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #542D11 ), color-stop( 0.35, #281D10 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_78.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #542D11 ), color-stop( 0.35, #281D10 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_78 #PlayerName
+{
+	color: #FFFBD7;
+}
+
+/* Rem (hero_familiar) */
+.hero_79 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #539BAB ), color-stop( 0.55, #25497A ), to( #1F3C66 ) );
+	border-bottom: 4px solid #5FB0B7;
+}
+.hero_79.PlayerContainer
+{
+	border-top: 3px solid #25497A;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1F3859 ), color-stop( 0.35, #15212C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_79.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #1F3859 ), color-stop( 0.35, #15212C ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_79 #PlayerName
+{
+	color: #D8FFFB;
+}
+
+/* Silver (hero_werewolf) */
+.hero_80 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #D99C62 ), color-stop( 0.55, #B53913 ), to( #99391A ) );
+	border-bottom: 4px solid #E2B576;
+}
+.hero_80.PlayerContainer
+{
+	border-top: 3px solid #B53913;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #5F2510 ), color-stop( 0.35, #311C10 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_80.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #5F2510 ), color-stop( 0.35, #311C10 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_80 #PlayerName
+{
+	color: #FFDDC9;
+}
+
+/* Celeste (hero_unicorn) */
+.hero_81 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #8699B4 ), color-stop( 0.55, #785B96 ), to( #624E77 ) );
+	border-bottom: 4px solid #89A9BC;
+}
+.hero_81.PlayerContainer
+{
+	border-top: 3px solid #785B96;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #3E334A ), color-stop( 0.35, #222024 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_81.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #3E334A ), color-stop( 0.35, #222024 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_81 #PlayerName
+{
+	color: #FFD6FF;
+}
+
+/* Rat King (hero_ratking) */
+.hero_84 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #AC6A56 ), color-stop( 0.55, #54543a ), to( #3F402D ) );
+	border-bottom: 4px solid #c2705d;
+}
+.hero_84.PlayerContainer
+{
+	border-top: 3px solid #54543a;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #373927 ), color-stop( 0.35, #1E2016 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_84.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #373927 ), color-stop( 0.35, #1E2016 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_84 #PlayerName
+{
+	color: #FFEFD7;
+}
+
+/* Solomon (hero_chessmaster) */
+.hero_85 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #7D7F65 ), color-stop( 0.55, #1c453d ), to( #22453e ) );
+	border-bottom: 4px solid #958E6F;
+}
+.hero_85.PlayerContainer
+{
+	border-top: 3px solid #1c453d;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #193831 ), color-stop( 0.35, #17261F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_85.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #193831 ), color-stop( 0.35, #17261F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_85 #PlayerName
+{
+	color: #FFEDD7;
+}
+
+/* Violet (hero_artist) */
+.hero_86 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #B75DAC ), color-stop( 0.55, #65356E ), to( #522854 ) );
+	border-bottom: 4px solid #CB67BC;
+}
+.hero_86.PlayerContainer
+{
+	border-top: 3px solid #65356E;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #4C2B51 ), color-stop( 0.35, #271A26 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_86.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #4C2B51 ), color-stop( 0.35, #271A26 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_86 #PlayerName
+{
+	color: #FFD7F1;
+}
+
+/* Nurse Harrow (hero_nurse) */
+.hero_87 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #BC6540 ), color-stop( 0.55, #090c0c ), to( #3d473d ) );
+	border-bottom: 4px solid #E97B4D;
+}
+.hero_87.PlayerContainer
+{
+	border-top: 3px solid #090c0c;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0B0E0C ), color-stop( 0.35, #21261F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_87.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #0B0E0C ), color-stop( 0.35, #21261F ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_87 #PlayerName
+{
+	color: #FFE2D7;
+}
+
+/* Baba (hero_baba) */
+.hero_88 .HeroImageContainer
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #A68092 ), color-stop( 0.55, #375D3F ), to( #334F39 ) );
+	border-bottom: 4px solid #C289A7;
+}
+.hero_88.PlayerContainer
+{
+	border-top: 3px solid #375D3F;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #263D29 ), color-stop( 0.35, #1A2419 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_88.TradePlayerSlot
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #263D29 ), color-stop( 0.35, #1A2419 ), color-stop( 0.70, #10130D ), to( #10130D ) );
+}
+.hero_88 #PlayerName
+{
+	color: #FFD7DF;
+}

@@ -10,7 +10,7 @@ import { GameMode } from './GameMode';
 
 // TODO: Fix
 export function IsInToolsMode() {
-    return false;
+    return true;
 }
 
 // The shared file is a Panorama script, not an ES module with named exports.
@@ -21,6 +21,8 @@ onStart(() => {
         resources: [
             "particles/{addon}/dest-ring.vpcf",
             "particles/{addon}/go-square.vpcf",
+            "models/buildings_background/background_building01a.vmdl",
+            "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl"
         ]
     })
 })
@@ -64,20 +66,20 @@ command("monopolis_requestbankrupt", (player, args) => gamemode.Bankrupt(player,
 command("monopolis_requesttrade", (player, args) => gamemode.StartTrade(player, args));
 command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
 
-command('start', (player) => {
-  player.chat('Hello from monopolis-deadlock!');
+//command('start', (player) => {
+ // player.chat('Hello from monopolis-deadlock!!');
   if (IsInToolsMode()) {
     for (let i of Array(5)) {
       let randomHero = heroes[Math.floor(Math.random() * heroes.length)];
       addBot({
-        name: randomHero.name,
+        name: randomHero.title,
         team: 3,
         hero: randomHero.id,
-        position: {x: -3250, y: -350, z: 1}
+        position: {x: 0, y: 0, z: 1}
       })
     }
   }
-  after(1, () => {
+  after(3, () => {
     for (let actor of players()) {
         hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status"]);
         actor.player.freeCamera({x: 325, y: -875, z: 500}, {pitch: 45, yaw: 90, roll: 0})
@@ -85,5 +87,5 @@ command('start', (player) => {
     gamemode = new GameMode();
     gamemode.StartGame();
   })
-});
+//});
 

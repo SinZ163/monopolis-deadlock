@@ -14,15 +14,22 @@
 }
 .TradePlayerSlot {
     flow-children: down;
-    margin: 0px 20px;
+    margin: 10px 20px;
 }
 .TradePlayerTopBar {
     flow-children: right;
 }
 
-.TradePlayerSlot #PlayerImage {
+.TradePlayerSlot .HeroContainer {
     width: 60px;
-    height: 60px;
+    height: 105px;
+}
+.TradePlayerSlot .HeroImageContainer {
+    height: 100px;
+}
+.TradePlayerSlot #PlayerImage {
+    width: 25px;
+    height: 25px;
 }
 
 
@@ -38,16 +45,16 @@
 }
 
 .TradePropertyContainer {
-    background-color: rgba(0, 0, 0, 0.3);
     width: 450px;
-    height: 200px;
+    height: 130px;
     flow-children: right;
     border-width: 10px;
 }
 .TradePlayerSlotCategoryContainer {
     flow-children: up;
-    height: 200px;
+    height: 110px;
 }
+/*
 .TradePropertyCategoryCell {
     width: 30px;
     margin: 2px 6px;
@@ -55,11 +62,88 @@
     background-color: grey;
     border-style: solid;
     border-width: 2px;
+}*/
+
+
+.TradePropertyCategoryCell {
+    width: 30px;
+    margin: 3px 3px;
+    height: 20px;
+    background-color: white;
+    border-radius: 2px;
+}
+.TradePropertyCategoryCell #Body {
+    width: 100%;
+    height: 90%;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+.TradePropertyCategoryCell #MortgageSlash {
+	visibility: collapse;
+	width: 130%;
+	height: 2px;
+	horizontal-align: center;
+	vertical-align: center;
+	background-color: #EE5945;
+	transform: rotateZ(-36deg);   /* matches a 15x11 block's diagonal; use -45deg for squares */
 }
 
-
+.TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Unowned #Body {
+    height: 100%;
+}
 .TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Unowned {
-    /*background-color: rgba(255,255,255,0.0);*/
+    saturation: 0;
+    brightness: 0.18;
+    opacity: 0.8;
+}
+
+.TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Mortgaged #MortgageSlash {
+    visibility: visible;
+}
+.TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Mortgaged #Body {
+    brightness: 0.5;
+    saturation: 0.5;
+}
+
+.TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Owned {
+    saturation: 0.15;
+    brightness: 0.45;
+}
+
+.TradePropertyCategoryCell.brown #Body {
+    background-color: brown;
+}
+.TradePropertyCategoryCell.teal #Body {
+    background-color: cyan;
+}
+.TradePropertyCategoryCell.magenta #Body {
+    background-color: magenta;
+}
+.TradePropertyCategoryCell.orange #Body {
+    background-color: orange;
+}
+.TradePropertyCategoryCell.red #Body {
+    background-color: red;
+}
+.TradePropertyCategoryCell.yellow #Body {
+    background-color: yellow;
+}
+.TradePropertyCategoryCell.green #Body {
+    background-color: green;
+}
+.TradePropertyCategoryCell.blue #Body {
+    background-color: blue;
+}
+.TradePropertyCategoryCell.utility #Body {
+    background-color: white;
+}
+.TradePropertyCategoryCell.railroad #Body {
+    background-color: grey;
+}
+
+/*
+.TradePlayerSlotCategoryContainer .TradePropertyCategoryCell.Unowned {
+    /*background-color: rgba(255,255,255,0.0);*//*
     opacity: 0;
 }
 #TradeDragImage,
@@ -109,6 +193,7 @@
 .TradePropertyCategoryCell.railroad {
     border-color: black;
 }
+*/
 
 .TradeSummaryRow {
     width: 670px;

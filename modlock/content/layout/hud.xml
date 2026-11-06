@@ -8,9 +8,9 @@
     </scripts>
 
     <styles>
-        <!-- Included css style files go here -->
+        <!-- Included css style files go here  -->
         <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
-        <include src="file://{resources}/styles/{addon}/wiki-heroes.css" />
+        <include src="file://{resources}/styles/{addon}/hero-portrait-gradients.css" />
         <include src="file://{resources}/styles/{addon}/hud.css" />
         <include src="file://{resources}/styles/{addon}/bottombar.css" />
         <include src="file://{resources}/styles/{addon}/propertymanagement.css" />
@@ -18,20 +18,42 @@
     </styles>
     <snippets>
         <snippet name="MoneyTableRow">
-            <Panel class="MoneyTableRow">
-                <Panel class="MoneyTopBar" hittest="false">
-                    <CitadelAvatarImage id="Image" hittest="false" />
-                    <CitadelUserName id="Name" hittest="false" />
-                    <Label id="GoldAmount" hittest="false" />
+            <Panel class="PlayerContainer" hittest="false">
+                <Panel class="HeroContainer">
+                    <CitadelAvatarImage id="PlayerImage" hittest="false" />
+                    <Panel class="HeroImageContainer">
+                        <CitadelHeroImage id="HeroImage" heroid="81" heroimagestyle="vertical" />
+                    </Panel>
+                </Panel>
+                <Panel id="PlayerContents" hittest="false">
+                    <Label id="PlayerName" hittest="false" />
+                    <Label id="HeroName" text="{g:citadel_hero_name:hero_id}" />
+                    <Label id="BotLabel" text="#citadel_bot_name" />
+                    <Panel class="GoldContainer" hittest="false">
+                        <Panel class="GoldIcon" />
+                        <Label id="GoldAmount" hittest="false" />
+                    </Panel>
                 </Panel>
             </Panel>
         </snippet>
         <snippet name="TradePlayerSlotEntry">
             <Panel class="TradePlayerSlot">
                 <Panel class="TradePlayerTopBar">
-                    <CitadelAvatarImage id="PlayerImage" />
-                    <CitadelUserName id="PlayerName" />
-                    <Label text="" html="true" />
+                    <Panel class="HeroContainer">
+                        <CitadelAvatarImage id="PlayerImage" hittest="false" />
+                        <Panel class="HeroImageContainer">
+                            <CitadelHeroImage id="HeroImage" heroid="81" heroimagestyle="vertical" />
+                        </Panel>
+                    </Panel>
+                    <Panel id="PlayerContents" hittest="false">
+                        <Label id="PlayerName" hittest="false" />
+                        <Label id="HeroName" text="{g:citadel_hero_name:hero_id}" />
+                        <Label id="BotLabel" text="#citadel_bot_name" />
+                        <Panel class="GoldContainer" hittest="false">
+                            <Panel class="GoldIcon" />
+                            <Label id="GoldAmount" hittest="false" />
+                        </Panel>
+                    </Panel>
                     <NumberEntry id="TransferMoney" draggable="true" />
                 </Panel>
             </Panel>

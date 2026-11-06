@@ -1,4 +1,4 @@
-import { after, createEntity, createParticle, entityPosition, findEntitiesByName, killEntity, MovementSample, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
+import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, killEntity, MovementSample, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
 import { IsInToolsMode } from "./main";
@@ -589,7 +589,7 @@ export class GameMode {
             }
             // Sell the hotel and not put houses back on
             if (delta === -5 && propertyState.houseCount === 5) {
-                market.hotels -= 1;
+                market.hotels += 1;
                 propertyState.houseCount = 0;
                 current.money += (tile.housePrice / 2) * 5;
             }
@@ -841,6 +841,74 @@ export class GameMode {
                 });
             }
         }
+        const RANDOM_TEST_OWNERSHIP = false;
+        if (RANDOM_TEST_OWNERSHIP && IsInToolsMode()) {
+            this.RandomiseOwnershipForTesting();
+            CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
+            this.miscState.SetValue("trade", {initiator: 0, current: 0, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
+        }
+        for (let tile of Object.values(TilesObj)) {
+            if (this.IsPurchasableTile(tile)) {
+                let propertyState = this.propertyOwnership.GetValue(tile.id);
+                let space = findEntitiesByName(tile.id)[0];
+                let entPos = entityPosition(space);
+
+                function localToWorld(origin: Vector, yawDeg: number, local: Vector): Vector {
+                    const r = (yawDeg * Math.PI) / 180;
+                    const c = Math.cos(r), s = Math.sin(r);
+                    return {
+                        x: origin.x + local.x * c - local.y * s,
+                        y: origin.y + local.x * s + local.y * c,
+                        z: origin.z + local.z,
+                    };
+                }
+                
+                let buildingFacing = {...entPos!.facing, yaw: (entPos!.facing.yaw + 90 % 360)}
+                if (propertyState.houseCount === 5) {
+                    let hotelPosition = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(62.5, 180, 0));
+                    createModel({
+                        position: hotelPosition,
+                        facing: buildingFacing,
+                        resource: "models/buildings_background/background_building01a.vmdl",
+                        color: 0xC81E1EFF,
+                        scale: 0.013
+                    })
+                } else if (propertyState.houseCount > 0) {
+                    let house1Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(25, 180, 0));
+                    createModel({
+                        position: house1Position,
+                        facing: buildingFacing,
+                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
+                        color: 0x00A046FF,
+                        scale: 0.007
+                    })
+                    let house2Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(50, 180, 0));
+                    createModel({
+                        position: house2Position,
+                        facing: buildingFacing,
+                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
+                        color: 0x00A046FF,
+                        scale: 0.007
+                    })
+                    let house3Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(75, 180, 0));
+                    createModel({
+                        position: house3Position,
+                        facing: buildingFacing,
+                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
+                        color: 0x00A046FF,
+                        scale: 0.007
+                    })
+                    let house4Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(100, 180, 0));
+                    createModel({
+                        position: house4Position,
+                        facing: buildingFacing,
+                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
+                        color: 0x00A046FF,
+                        scale: 0.007
+                    })
+                }
+            }
+        }
         CustomNetTables.SetTableValue("misc", "current_turn", {pID: 0, rolls: [], type: "transition"});
         
         // TODO: Do logic to determine roll order
@@ -868,10 +936,35 @@ export class GameMode {
                 location: 0,
                 jailed: 0,
                 alive: true,
+                heroId:connection.player.pawn()!.hero,
             });
         }
         CustomNetTables.SetTableValue("misc", "roll_order", rollOrder);
         this.StartTurn();
+    }
+    private RandomiseOwnershipForTesting(): void {
+        const playerCount = Object.keys(players()).length;
+        if (playerCount === 0) return;
+        for (const tile of Object.values(TilesObj)) {
+            if (!this.IsPurchasableTile(tile)) continue;
+            // Leave about 25% of tiles unowned so the for-sale state shows up
+            if (Math.random() < 0.25) {
+                this.propertyOwnership.SetValue(tile.id, { houseCount: 0, owner: -1 });
+                continue;
+            }
+            const owner = Math.floor(Math.random() * playerCount) as PlayerID;
+            const roll = Math.random();
+            let houseCount: number;
+            if (tile.type === "property") {
+                // 15% mortgaged, 35% plain owned, 40% with 1-4 houses, 10% with a hotel
+                if (roll < 0.5) houseCount = 4;
+                else houseCount = 5;
+            } else {
+                // Railroads and utilities can only be owned or mortgaged
+                houseCount = roll < 0.2 ? -1 : 0;
+            }
+            this.propertyOwnership.SetValue(tile.id, { houseCount, owner });
+        }
     }
 
     public GetCurrentPlayerState() {
