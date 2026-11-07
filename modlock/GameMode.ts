@@ -54,10 +54,29 @@ const CardDeck: Record<Deck, CardAction[]> = {
     ],
 };
 
+function localToWorld(origin: Vector, yawDeg: number, local: Vector): Vector {
+    const r = (yawDeg * Math.PI) / 180;
+    const c = Math.cos(r), s = Math.sin(r);
+    return {
+        x: origin.x + local.x * c - local.y * s,
+        y: origin.y + local.x * s + local.y * c,
+        z: origin.z + local.z,
+    };
+}
+
 // The shared file is a Panorama script, not an ES module with named exports.
 const { TilesObj, TradeStateStatus } = globalThis.MonopolisCommon;
 
 const TilesReverseLookup: Record<number,Tiles> = Object.fromEntries(Object.entries(TilesObj).map<[number, Tiles]>(val => [val[1].index, val[0] as Tiles]));
+
+interface PropMapEntry {
+    house1?: WorldObject;
+    house2?: WorldObject;
+    house3?: WorldObject;
+    house4?: WorldObject;
+    hotel?: WorldObject;
+}
+const PropMap: Record<Tiles, PropMapEntry> = Object.fromEntries(Object.entries(TilesObj).map(val => [val[1].id, {}])) as Record<Tiles, PropMapEntry>;
 
 export class GameMode {
     OnMovement(movements: MovementSample[]) {
@@ -496,7 +515,7 @@ export class GameMode {
             commonLogicUsed = true;
         } else if (propertyState.houseCount === -1 && event.houseCount === 0) {
             // -1 => 0, we are unmortgaging and should take the money + 10% fee
-            let cost = (tile.purchasePrice / 2) * 1.10;
+            let cost = Math.ceil((tile.purchasePrice / 2) * 1.10);
             if (current.money < cost) {
                 toast(current.connection.player, "#monopolis_property_broke");
                 return;
@@ -554,21 +573,8 @@ export class GameMode {
             let market = CustomNetTables.GetTableValue("misc", "housing_market");
             
             DeepPrintTable({propertyState, event, delta, market, tile});
-            if (propertyState.houseCount === 0 && event.houseCount === -1) {
-                current.money += tile.purchasePrice / 2;
-                propertyState.houseCount = -1;
-            } else if (propertyState.houseCount === -1 && event.houseCount === 0) {
-                // -1 => 0, we are unmortgaging and should take the money + 10% fee
-                let cost = (tile.purchasePrice / 2) * 1.10;
-                if (current.money < cost) {
-                    toast(current.connection.player, "#monopolis_property_broke");
-                    return;
-                }
-                current.money -= cost;
-                propertyState.houseCount = 0;
-            }
             // If you want houses and aren't going to a hotel, needs to have houses in the market
-            else if (event.houseCount != 5 && delta > 0 && market.houses < delta) {
+            if (event.houseCount != 5 && delta > 0 && market.houses < delta) {
                 toast(current.connection.player, "#monopolis_property_marketcrash");
                 return;
             }
@@ -587,17 +593,56 @@ export class GameMode {
                 toast(current.connection.player, "#monopolis_property_broke");
                 return;
             }
+            function spawnBuilding(index: 1|2|3|4|5) {
+                let space = findEntitiesByName(tile.id)[0];
+                let entPos = entityPosition(space);                
+                let buildingFacing = {...entPos!.facing, yaw: (entPos!.facing.yaw + 90 % 360)};
+                let propKey: (keyof PropMapEntry) = index === 5 ? "hotel" : `house${index}`;
+                let position: Vector;
+                let resource: string;
+                let color: number;
+                let scale: number;
+                if (propKey === "hotel") {
+                    position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(62.5, 180, 0));
+                    resource = "models/buildings_background/background_building01a.vmdl";
+                    color = 0xC81E1EFF;
+                    scale = 0.013;
+                } else {
+                    position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(25*index, 180, 0));
+                    resource = "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl";
+                    color = 0x00A046FF;
+                    scale = 0.007;
+                }
+                PropMap[tile.id][propKey] = createModel({
+                    position,
+                    facing: buildingFacing,
+                    resource,
+                    color,
+                    scale,
+                });
+            }
             // Sell the hotel and not put houses back on
             if (delta === -5 && propertyState.houseCount === 5) {
                 market.hotels += 1;
                 propertyState.houseCount = 0;
                 current.money += (tile.housePrice / 2) * 5;
+                PropMap[tile.id].hotel?.remove();
+                PropMap[tile.id].hotel = undefined;
             }
             // Buy a hotel (hotels are on the market, delta must be 1 and can afford it)
             else if (event.houseCount === 5 && delta > 0) {
                 propertyState.houseCount = 5;
                 market.hotels -= 1;
                 market.houses += 4;
+                spawnBuilding(5);
+                PropMap[tile.id].house1?.remove();
+                PropMap[tile.id].house1 = undefined;
+                PropMap[tile.id].house2?.remove();
+                PropMap[tile.id].house2 = undefined;
+                PropMap[tile.id].house3?.remove();
+                PropMap[tile.id].house3 = undefined;
+                PropMap[tile.id].house4?.remove();
+                PropMap[tile.id].house4 = undefined;
                 current.money -= tile.housePrice;
             }
             // Buy a house (cant be hotel, houses are on the market, delta must be 1 and can afford it)
@@ -605,14 +650,30 @@ export class GameMode {
                 propertyState.houseCount += delta;
                 market.houses -= delta;
                 current.money -= tile.housePrice;
+                let houseCount = event.houseCount;
+                if (houseCount > 0 && houseCount < 5) {
+                    // TODO: If delta is allowed to be >1 this needs to also spawn >1
+                    spawnBuilding(houseCount as 1|2|3|4);
+                }                    
             }
             // Sell a house/hotel
             else if (delta < 0 && event.houseCount !== -1) {
                 if (propertyState.houseCount === 5) {
-                    market.houses -= (5 + delta);
+                    market.houses += (5 + delta);
                     market.hotels += 1;
+                    PropMap[tile.id].hotel?.remove();
+                    PropMap[tile.id].hotel = undefined;
+                    spawnBuilding(1);
+                    spawnBuilding(2);
+                    spawnBuilding(3);
+                    spawnBuilding(4);
                 } else {
-                    market.houses += delta;
+                    market.houses -= delta;
+                    let currentHouseCount = propertyState.houseCount;
+                    if (currentHouseCount != 0 && currentHouseCount != -1) {
+                        PropMap[tile.id][`house${currentHouseCount}`]?.remove();
+                        PropMap[tile.id][`house${currentHouseCount}`] = undefined;
+                    }
                 }
                 propertyState.houseCount += delta;
                 current.money += (tile.housePrice / 2) * Math.abs(delta);
@@ -841,73 +902,11 @@ export class GameMode {
                 });
             }
         }
-        const RANDOM_TEST_OWNERSHIP = false;
+        const RANDOM_TEST_OWNERSHIP = true;
         if (RANDOM_TEST_OWNERSHIP && IsInToolsMode()) {
             this.RandomiseOwnershipForTesting();
-            CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
-            this.miscState.SetValue("trade", {initiator: 0, current: 0, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
-        }
-        for (let tile of Object.values(TilesObj)) {
-            if (this.IsPurchasableTile(tile)) {
-                let propertyState = this.propertyOwnership.GetValue(tile.id);
-                let space = findEntitiesByName(tile.id)[0];
-                let entPos = entityPosition(space);
-
-                function localToWorld(origin: Vector, yawDeg: number, local: Vector): Vector {
-                    const r = (yawDeg * Math.PI) / 180;
-                    const c = Math.cos(r), s = Math.sin(r);
-                    return {
-                        x: origin.x + local.x * c - local.y * s,
-                        y: origin.y + local.x * s + local.y * c,
-                        z: origin.z + local.z,
-                    };
-                }
-                
-                let buildingFacing = {...entPos!.facing, yaw: (entPos!.facing.yaw + 90 % 360)}
-                if (propertyState.houseCount === 5) {
-                    let hotelPosition = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(62.5, 180, 0));
-                    createModel({
-                        position: hotelPosition,
-                        facing: buildingFacing,
-                        resource: "models/buildings_background/background_building01a.vmdl",
-                        color: 0xC81E1EFF,
-                        scale: 0.013
-                    })
-                } else if (propertyState.houseCount > 0) {
-                    let house1Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(25, 180, 0));
-                    createModel({
-                        position: house1Position,
-                        facing: buildingFacing,
-                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
-                        color: 0x00A046FF,
-                        scale: 0.007
-                    })
-                    let house2Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(50, 180, 0));
-                    createModel({
-                        position: house2Position,
-                        facing: buildingFacing,
-                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
-                        color: 0x00A046FF,
-                        scale: 0.007
-                    })
-                    let house3Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(75, 180, 0));
-                    createModel({
-                        position: house3Position,
-                        facing: buildingFacing,
-                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
-                        color: 0x00A046FF,
-                        scale: 0.007
-                    })
-                    let house4Position = localToWorld(entPos!.position, entPos!.facing.yaw, vector.at(100, 180, 0));
-                    createModel({
-                        position: house4Position,
-                        facing: buildingFacing,
-                        resource: "models/backdrop/buildings/backdrop_building_dock_hotel.vmdl",
-                        color: 0x00A046FF,
-                        scale: 0.007
-                    })
-                }
-            }
+            //CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
+            //this.miscState.SetValue("trade", {initiator: 0, current: 0, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
         }
         CustomNetTables.SetTableValue("misc", "current_turn", {pID: 0, rolls: [], type: "transition"});
         
@@ -954,11 +953,11 @@ export class GameMode {
             }
             const owner = Math.floor(Math.random() * playerCount) as PlayerID;
             const roll = Math.random();
-            let houseCount: number;
+            let houseCount: -1|0|1|2|3|4|5 = 0 as const;
             if (tile.type === "property") {
                 // 15% mortgaged, 35% plain owned, 40% with 1-4 houses, 10% with a hotel
-                if (roll < 0.5) houseCount = 4;
-                else houseCount = 5;
+                //if (roll < 0.5) houseCount = 4;
+                //else houseCount = 5;
             } else {
                 // Railroads and utilities can only be owned or mortgaged
                 houseCount = roll < 0.2 ? -1 : 0;

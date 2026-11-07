@@ -312,6 +312,6 @@ interface PlayerState {
 }
 
 interface PropertyOwnership {
-    houseCount: number;
+    houseCount: -1|0|1|2|3|4|5;
     owner: PlayerID;
 }
