@@ -534,9 +534,9 @@ const locale: Record<string,string> = {
     "deck_chance": "CHANCE",
 
     "card_money_gain": "Gain <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}",
-    "card_money_gain_other": "Gain <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} from each player (<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total})",
+    "card_money_gain_others": "Gain <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total}",
     "card_money_lose": "Pay {d:value}",
-    "card_money_lose_other": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value} to each player (<img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total})",
+    "card_money_lose_others": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:total}",
     "card_repairs": "Pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:var1} ({d:var2} houses, {d:var3} hotels)",
 
     "card_teleport": "OK",
@@ -558,7 +558,7 @@ const locale: Record<string,string> = {
     "CHANCE_BankDividend": "Bank pays you dividend of <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
     "CHANCE_GeneralRepairs": "Make general repairs on all your property: For each house pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:house}, For each hotel pay <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:hotel}.",
     "CHANCE_Speeding": "Speeding fine <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}",
-    "CHANCE_Chairman": "You have been electred Chairman of the Board. Pay each player <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
+    "CHANCE_Chairman": "You have been elected Chairman of the Board.<br> Pay each player <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
     "CHANCE_BuildingLoan": "Your building loan matures. Receive <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
 
     "COMMUNITYCHEST_BankError": "Bank error in your favor. Collect <img class=\"inlinegold\" src=\"s2r://panorama/images/hud/icons/icon_soul.vsvg\" />{d:value}.",
@@ -604,6 +604,7 @@ const locale: Record<string,string> = {
 enum TradeStateStatus {
     ModifyTrade,
     Confirmation,
+    Finalized,
 }
 
 // Keep this file a plain script for Panorama's ordered layout includes.

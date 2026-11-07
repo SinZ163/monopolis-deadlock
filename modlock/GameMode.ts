@@ -180,6 +180,9 @@ export class GameMode {
             } else if (event.type === "remove_money") {
                 let moneyOfferId = tradeState.offers.findIndex(offer => offer.type === "money" && offer.from === event.from && offer.to === event.to && offer.money === event.money);
                 if (moneyOfferId > -1) {
+                    let offer = tradeState.offers[moneyOfferId] as MoneyTradeOffer;
+                    tradeState.deltaMoney[event.from] = (tradeState.deltaMoney[event.from] ?? 0) + offer.money;
+                    tradeState.deltaMoney[event.to] = (tradeState.deltaMoney[event.to] ?? 0) - offer.money;
                     tradeState.offers.splice(moneyOfferId, 1);
                     participantSet = new Set(tradeState.offers.flatMap(offer => [offer.from, offer.to]));
                 }
@@ -220,6 +223,7 @@ export class GameMode {
                 }
             }
             if (isSuccess) {
+                tradeState.status = TradeStateStatus.Finalized;
                 after(3, () => {
                     CustomNetTables.SetTableValue("misc", "ui_state", {type: "n/a"});
                     for (let offer of tradeState.offers) {
@@ -238,6 +242,8 @@ export class GameMode {
                     }
                 });
             }
+        } else {
+            return;
         }
         
         tradeState.participants = [...participantSet];
@@ -746,6 +752,8 @@ export class GameMode {
         if (uiState.type !== "bankrupt_confirm") return;
         // TODO: Fuck we actually need to bankrupt them now
         let propertyStates = this.propertyOwnership.GetAllValues();
+        let market = CustomNetTables.GetTableValue("misc", "housing_market");
+
         let modifiedProperties: Array<[string, PropertyOwnership]> = [];
         for (let [id, state] of Object.entries(propertyStates)) {
             if (state.owner === current.pID) {
@@ -754,12 +762,23 @@ export class GameMode {
                     current.money += (propertyInfo.housePrice * state.houseCount)/2;
                 }
                 if (state.houseCount >= 0) {
+                    if (state.houseCount === 5) {
+                        market.hotels += 1;
+                    } else {
+                        market.houses += state.houseCount;
+                    }
                     current.money += propertyInfo.purchasePrice / 2;
                 }
-                // TODO: #pretty destruction of the board
+                for (const [key, entity] of Object.entries(PropMap[id as PurchasableTiles]) as [keyof PropMapEntry, PropMapEntry[keyof PropMapEntry]][]) {
+                    if (entity !== undefined) {
+                        entity.remove();
+                        PropMap[id as PurchasableTiles][key] = undefined;
+                    }
+                }
                 modifiedProperties.push([id, {
                     owner: current.turnState.potentialBankrupt,
-                    houseCount: -1
+                    // Mortgaged if going to other players but regular if its the bank
+                    houseCount: current.turnState.potentialBankrupt === -1 ? 0 : -1,
                 }]);
             }
         }

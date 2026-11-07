@@ -108,7 +108,8 @@ Modlock.route("trade", (tradeState: TradeState) => {
         }
     }
     let tradeConfirmContainer = $("#TradeConfirmation");
-    tradeConfirmContainer.SetHasClass("Hidden", tradeState.status !== TradeStateStatus.Confirmation);
+    tradeConfirmContainer.SetHasClass("Hidden", tradeState.status === TradeStateStatus.ModifyTrade);
+    $("#TradeAcceptButtons").SetHasClass("Hidden", tradeState.status === TradeStateStatus.Finalized);
     if (tradeState.status === TradeStateStatus.Confirmation) {
         let tradeConfirmPlayerContainer = $("#TradeConfirmationStatus");
         tradeConfirmPlayerContainer.RemoveAndDeleteChildren();

@@ -420,6 +420,18 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                 case "money_lose_others":
                     resultText = resultText.replaceAll("{d:value}", turnState.card.value.toFixed(0));
                     text = text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
+                    if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
+                        let value = turnState.card.value;
+                        if (turnState.card.type === "money_lose_others") {
+                            let aliveOthers = Object.values(playerStates).filter(player => player.pID !== turnState.pID && player.alive);
+                            value = value * aliveOthers.length;
+                            resultText = resultText.replaceAll("{d:total}", value.toFixed(0));
+                            text = text.replaceAll("{d:total}", value.toFixed(0));
+                        }
+                        if (value > playerState.money) {
+                            $.GetContextPanel().AddClass("SellStuffRequired");
+                        }
+                    }
                     break;
                 case "repairs":
                     resultText = resultText.replaceAll("{d:house}", turnState.card.house.toFixed(0))
@@ -438,16 +450,6 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                     }
             }
             
-            if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
-                let value = turnState.card.value;
-                if (turnState.card.type === "money_lose_others") {
-                    let aliveOthers = Object.values(playerStates).filter(player => player.pID !== turnState.pID && player.alive);
-                    value = value * aliveOthers.length;
-                }
-                if (value > playerState.money) {
-                    $.GetContextPanel().AddClass("SellStuffRequired");
-                }
-            }
             if (turnState.type === "auxroll_result" && turnState.value > playerState.money) {
                 $.GetContextPanel().AddClass("SellStuffRequired");
             }
