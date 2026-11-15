@@ -4,6 +4,5 @@
   "version": "0.1.1",
   "language": "LANGUAGE_TYPESCRIPT",
   "entry": "src/server/main.ts",
-  "map": "hl_monopolis",
-  "players": "2 to 6"
+  "map": "hl_monopolis"
 }

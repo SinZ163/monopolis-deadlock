@@ -1,5 +1,3 @@
-const MOVEMENT_SCHEDULE_TIMER = 0.1;
-
 (() => {
     let parent = $.GetContextPanel().GetParent();
     do {
@@ -154,6 +152,20 @@ Modlock.route("price_definition", (priceDefs) => {
                 existingCategoryContainer.AddClass("MoneyPropertyCategoryContainer");
             }
             let propTile = $.CreatePanel("Panel", existingCategoryContainer, `MoneyProperty_${pID}_${tile}`);
+            function CreateTooltip() {
+                const params = `property=${tile}`;
+                $.DispatchEvent(
+                    'UIShowCustomLayoutParametersTooltip',
+                    propTile,
+                    'MonopolisPropertyTooltip',
+                    'file://{resources}/layout/{addon}/property.xml',
+                    params,
+                );
+            }
+            propTile.SetPanelEvent('onmouseover', CreateTooltip);
+            propTile.SetPanelEvent('onmouseout', function() {
+                $.DispatchEvent('UIHideCustomLayoutTooltip', propTile, 'MonopolisPropertyTooltip');
+            });
             propTile.AddClass(`MoneyPropertyCategoryCell`);
             propTile.AddClass(tileInfo.type === "property" ? tileInfo.category : tileInfo.type);
             $.CreatePanel("Panel", propTile, "Body");
@@ -193,6 +205,16 @@ Modlock.route("property_ownership", (ownership: Record<PurchasableTiles, Propert
 Modlock.route("auction", (auction: AuctionState) => {
     $.Msg("Auction| ", auction);
     if (!auction) return;
+
+    const turnState = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_current_turn", "{}")) as TurnState;
+    if (turnState.type === "auction") {
+        const showcaseContainer = $("#AuctionPropertyShowcase");
+        showcaseContainer.RemoveAndDeleteChildren();
+        const auctionProperty = $.CreatePanel("Panel", showcaseContainer, "AuctionProperty");        auctionProperty.SetAttributeString("property", turnState.property);
+        auctionProperty.SetAttributeString("property", turnState.property);
+        auctionProperty.BLoadLayout("file://{resources}/layout/{addon}/property.xml", false, false);
+    }
+    
     //let currentPlayerColor = ColorToHexCode2(Players.GetPlayerColor(value.current_bidder));
     //$("#AuctionButtons").style.backgroundColor = `gradient ( linear, 0% 100%, 100% 0%, from( #00000000 ), to( ${currentPlayerColor} ) );`;
     ($("#AuctionButtons").style as any).backgroundColorOpacity = 1.0;

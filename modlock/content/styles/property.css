@@ -1,0 +1,147 @@
+#Contents.OuterPropertyContainer {
+    background-color: none;
+    padding: 0px;
+    border: 0px;
+}
+
+.PropertyContainer {
+    width: 360px;
+    height: fit-children;
+    opacity-mask: url("s2r://panorama/images/tooltips/items/tooltip_backer_spirit_mask_psd.vtex");
+    flow-children: down;
+}
+
+.PropertyBG {
+    ignore-parent-flow: true;
+    width: 100%;
+    height: 100%;
+    background-image: url("s2r://panorama/images/tooltips/items/tooltip_backer_spirit_psd.vtex");
+    background-size: 100% 100%;
+}
+
+.brown .PropertyBG {
+    hue-rotation: 105deg;
+    brightness: 0.6;
+}
+.teal .PropertyBG {
+    hue-rotation: -75deg;
+}
+.magenta .PropertyBG {
+    hue-rotation: 45deg; 
+}
+.orange .PropertyBG {
+    hue-rotation: 144deg;
+    saturation: 2;
+}
+.red .PropertyBG {
+    hue-rotation: 105deg;
+    saturation: 2;
+}
+.yellow .PropertyBG {
+    hue-rotation: 165deg;
+    saturation: 2;
+}
+.green .PropertyBG {
+    hue-rotation: -135deg;
+    saturation: 1.3;
+}
+.blue .PropertyBG {
+    hue-rotation: -15deg;
+    saturation: 1.3;
+}
+/*.PropertyContainer.utility {
+    background-color: white;
+}
+.PropertyContainer.railroad {
+    background-color: grey;
+}*/
+
+.Header {
+    width: 100%;
+    height: fit-children;
+    padding: 20px 25px;
+    flow-children: down;
+}
+.Header .PropertyBG {
+    ignore-parent-flow: true;
+    margin: -20px -25px;
+    width: 100%;
+    height: 100%;
+    background-image: url("s2r://panorama/images/shop/catalog/catalog_tooltip_header_spirit_psd.vtex");
+    opacity-mask: none;
+}
+
+.PriceContainer {
+    flow-children: right;
+}
+.PropertyLabel {
+    font-weight: bold;
+    font-family: oracle;
+    font-size: 36px;
+    text-shadow: 2px 2px 0px #00000030;
+}
+.poor .SoulIcon {
+    wash-color: #ffa1a1;
+} 
+.SoulIcon {
+    background-image: url("s2r://panorama/images/hud/icons/icon_soul.vsvg");
+    wash-color: shardColor;
+    width: 16px;
+    height:22px;
+    margin-top: 3px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.poor .PriceLabel {
+    wash-color: #ffa1a1;
+} 
+.PriceLabel {
+    font-weight: bold;
+    font-size: 20px;
+    color: shardColor;
+    font-family: numericBlock;
+    vertical-align: middle;
+}
+
+.Attributes {
+    width: 100%;
+    height: fit-children;
+    margin: 1px;
+    padding: 10px 20px 10px 20px;
+    flow-children: down;
+}
+.AttributeRow {
+    flow-children: right;
+}
+
+.ActiveRentHeader {
+    margin-top: 12px;
+    background-color: offBlack&90;
+    width: 100%;
+}
+.HeaderLabel {
+    font-weight: bold;
+    margin-left: 10px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+}
+.AttributeHeaderValueContainer {
+    horizontal-align: right;
+    background-color: offBlack;
+    flow-children: right;
+    padding: 0px 20px;
+}
+.AttributeHeaderValueValue {
+    font-family: oracle;
+    font-weight: bold;
+    text-shadow: 1px 1px 0px offBlack&90;
+}
+
+.AttributeLabel {
+    width: fill-parent-flow(1.0);
+}
+.RentLabel {
+    width: 46px;
+    text-align: right;
+    margin-right: 20px;
+}

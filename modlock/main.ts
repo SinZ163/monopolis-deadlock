@@ -42,6 +42,21 @@ onWorld(() => {
       worldpanel.inputAddCSSClass(TilesObj[name].category)
     }
   }
+
+  if (IsInToolsMode()) {
+    for (let i of Array(5)) {
+      let randomHero = heroes[Math.floor(Math.random() * heroes.length)];
+      addBot({
+        name: randomHero.title,
+        team: 3,
+        hero: randomHero.id,
+        position: {x: 0, y: 0, z: 1}
+      })
+    }
+    after(3, () => {
+      start();
+    })
+  }
 })
 onFrame(frame => {
     drawHud(layoutPath);
@@ -66,26 +81,17 @@ command("monopolis_requestbankrupt", (player, args) => gamemode.Bankrupt(player,
 command("monopolis_requesttrade", (player, args) => gamemode.StartTrade(player, args));
 command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
 
-//command('start', (player) => {
- // player.chat('Hello from monopolis-deadlock!!');
-  if (IsInToolsMode()) {
-    for (let i of Array(5)) {
-      let randomHero = heroes[Math.floor(Math.random() * heroes.length)];
-      addBot({
-        name: randomHero.title,
-        team: 3,
-        hero: randomHero.id,
-        position: {x: 0, y: 0, z: 1}
-      })
-    }
+function start() {
+  for (let actor of players()) {
+      hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status"]);
+      actor.player.freeCamera({x: 325, y: -875, z: 500}, {pitch: 45, yaw: 90, roll: 0})
   }
-  after(3, () => {
-    for (let actor of players()) {
-        hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status"]);
-        actor.player.freeCamera({x: 325, y: -875, z: 500}, {pitch: 45, yaw: 90, roll: 0})
-    }
-    gamemode = new GameMode();
-    gamemode.StartGame();
-  })
-//});
+  gamemode = new GameMode();
+  gamemode.StartGame();
+}
+
+command('start', (player) => {
+  player.chat('Hello from monopolis-deadlock!!');
+  start();
+});
 

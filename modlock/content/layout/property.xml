@@ -1,0 +1,78 @@
+<root>
+    <styles>
+        <include src="s2r://panorama/styles/citadel_base_styles.vcss" />
+        <include src="s2r://panorama/styles/in_world_hideout_panel.vcss" />
+        <include src="file://{resources}/styles/{addon}/property.css"/>
+    </styles>
+    <scripts>
+        <include src="file://{resources}/scripts/{addon}/common/common.js"/>
+        <include src="file://{resources}/scripts/{addon}/panorama/property.js"/>
+    </scripts>
+    <Panel class="OuterPropertyContainer" ontooltiploaded="onTooltip()" hittest="false">
+        <Panel class="PropertyContainer">
+            <Panel class="PropertyBG" />
+            <Panel class="Header">
+                <Panel class="PropertyBG" />
+                <Label id="PropertyLabel" class="PropertyLabel" text="New York Ave"/>
+                <Panel class="PriceContainer">
+                    <Panel class="SoulIcon" />
+                    <Label id="PurchasePrice" class="PriceLabel" text="220" />
+                </Panel>
+            </Panel>
+            <Panel class="Attributes">
+                <Panel id="Mortgage" class="AttributeRow">
+                    <Label text="Mortgage Value" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="MortgageValue" class="RentLabel" text="110" />
+                </Panel>
+                <Panel id="BuildingCost" class="AttributeRow">
+                    <Label text="Building Cost" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="BuildingCostValue" class="RentLabel" text="100" />
+                </Panel>
+                <Panel id="ActiveRent" class="ActiveRentHeader">
+                    <Label text="Rent" class="HeaderLabel" />
+                    <Panel class="AttributeHeaderValueContainer">
+                        <Panel class="SoulIcon"/>
+                        <Label id="ActiveRentValue" text="20" class="AttributeHeaderValueValue" />
+                    </Panel>
+                </Panel>
+                <Panel id="BaseRent" class="AttributeRow">
+                    <Label text="Base Rent" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="BaseRentValue" class="RentLabel" text="20" />
+                </Panel>
+                <Panel id="MonopolyRent" class="AttributeRow">
+                    <Label text="Rent with full colour set" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="MonopolyRentValue" class="RentLabel" text="40" />
+                </Panel>
+                <Panel id="house1Rent" class="AttributeRow">
+                    <Label text="Rent with 1 house" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="house1RentValue" class="RentLabel" text="100" />
+                </Panel>
+                <Panel id="house2Rent" class="AttributeRow">
+                    <Label text="Rent with 2 houses" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="house2RentValue" class="RentLabel" text="200" />
+                </Panel>
+                <Panel id="house3Rent" class="AttributeRow">
+                    <Label text="Rent with 3 houses" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="house3RentValue" class="RentLabel" text="300" />
+                </Panel>
+                <Panel id="house4Rent" class="AttributeRow">
+                    <Label text="Rent with 4 houses" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="house4RentValue" class="RentLabel" text="400" />
+                </Panel>
+                <Panel id="hotelRent" class="AttributeRow">
+                    <Label text="Rent with a hotel" class="AttributeLabel"/>
+                    <Panel class="SoulIcon" />
+                    <Label id="hotelRentValue" class="RentLabel" text="500" />
+                </Panel>
+            </Panel>
+        </Panel>
+    </Panel>
+</root>

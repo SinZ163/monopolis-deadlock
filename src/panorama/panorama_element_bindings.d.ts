@@ -366,6 +366,7 @@ interface HTMLPanel extends Panel {
 }
 
 interface PanoramaPanelNameMap {
+  Panel: Panel;
   Label: LabelPanel;
   Image: ImagePanel;
   TextButton: TextButtonPanel;
