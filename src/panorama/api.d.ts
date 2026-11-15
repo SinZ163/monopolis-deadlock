@@ -1078,67 +1078,6 @@ interface Panel extends PanelBase {
     SetSendScrollPositionChangedEvents(value: boolean): void;
 }
 
-interface LabelPanel extends Panel {
-    text: string;
-    html: boolean;
-
-    SetLocString(token: string): void;
-    SetAlreadyLocalizedText(token: string): void;
-}
-type ScalingFunction =
-    | 'none'
-    | 'stretch' // the default
-    | 'stretchx'
-    | 'stretchy'
-    | 'stretch-to-fit-preserve-aspect'
-    | 'stretch-to-fit-x-preserve-aspect'
-    | 'stretch-to-fit-y-preserve-aspect'
-    | 'stretch-to-cover-preserve-aspect';
-interface ImagePanel extends Panel {
-    /**
-     * Sets the source of this Image.
-     *
-     * @example
-     * image.SetImage("file://{images}/custom_image.png");
-     * image.SetImage("s2r://panorama/images/hud/reborn/icon_glyph_on_psd.vtex");
-     */
-    SetImage(path: string): void;
-    SetScaling(scale: ScalingFunction): void;
-}
-
-interface NumberEntry extends Panel {
-    value: number;
-    /** @default 0 */
-    min: number;
-    /** @default 1000000 */
-    max: number;
-    /** @default 1 */
-    increment: number;
-}
-
-type UserRichPresence = UserName;
-interface UserName extends Panel {
-    /**
-     * 64-bit Steam ID number.
-     */
-    steamid: string;
-    /**
-     * 32-bit Steam ID number.
-     */
-    accountid: string;
-}
-
-interface AvatarImage extends UserName {
-    SetAccountID(accountid: number): void;
-}
-
-interface PanoramaPanelNameMap {
-    Panel: Panel;
-    Label: LabelPanel;
-    Image: ImagePanel;
-    NumberEntry: NumberEntry;
-}
-
 /**
  * Events provided by Valve's document: https://developer.valvesoftware.com/wiki/Dota_2_Workshop_Tools/Panorama/Events
  */

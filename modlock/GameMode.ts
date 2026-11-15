@@ -521,7 +521,7 @@ export class GameMode {
             commonLogicUsed = true;
         } else if (propertyState.houseCount === -1 && event.houseCount === 0) {
             // -1 => 0, we are unmortgaging and should take the money + 10% fee
-            let cost = Math.ceil((tile.purchasePrice / 2) * 1.10);
+            let cost = Math.round((tile.purchasePrice / 2) * 1.10);
             if (current.money < cost) {
                 toast(current.connection.player, "#monopolis_property_broke");
                 return;
@@ -665,7 +665,7 @@ export class GameMode {
             // Sell a house/hotel
             else if (delta < 0 && event.houseCount !== -1) {
                 if (propertyState.houseCount === 5) {
-                    market.houses += (5 + delta);
+                    market.houses -= (5 + delta);
                     market.hotels += 1;
                     PropMap[tile.id].hotel?.remove();
                     PropMap[tile.id].hotel = undefined;

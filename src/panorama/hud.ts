@@ -51,7 +51,7 @@ $.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
             existingPanel.AddClass("Hidden");
 
             existingPanel.BLoadLayoutSnippet("MoneyTableRow");
-            var propertyContainer = $.CreatePanel("Panel", existingPanel.FindChildTraverse("PlayerContents"), `MoneyPropertyContainer_${pID}`);
+            var propertyContainer = $.CreatePanel("Panel", existingPanel.FindChildTraverse("PlayerContents")!, `MoneyPropertyContainer_${pID}`);
             propertyContainer.AddClass("MoneyPropertyContainer");
         }
         let existingTradePanel = $(`#TradePlayerSlot_${pID}`);
@@ -61,15 +61,15 @@ $.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
             existingTradePanel.BLoadLayoutSnippet("TradePlayerSlotEntry");
             existingTradePanel.AddClass("Hidden");
 
-            (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = "0";
-            (existingTradePanel.FindChildTraverse("PlayerName") as UserName).steamid = "0";
+            (existingTradePanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = "0";
+            (existingTradePanel.FindChildTraverse("PlayerName") as CitadelUserNamePanel).steamid = "0";
             var propertyContainer = $.CreatePanel("Panel", existingTradePanel, `TradePropertyContainer_${pID}`);
             propertyContainer.AddClass("TradePropertyContainer");
             $.RegisterEventHandler("DragEnter", propertyContainer, OnTradePropertyDragEnter);
             $.RegisterEventHandler("DragLeave", propertyContainer, OnTradePropertyDragLeave);
             $.RegisterEventHandler("DragDrop", propertyContainer, OnTradePropertyDragDrop);
             (propertyContainer.Data() as any).pID = pID;
-            var moneyContainer = existingTradePanel.FindChildTraverse("TransferMoney") as NumberEntry;
+            var moneyContainer = existingTradePanel.FindChildTraverse("TransferMoney") as NumberEntryPanel;
             $.RegisterEventHandler("DragStart", moneyContainer, OnTradeMoneyDragStart);
             $.RegisterEventHandler("DragEnd", moneyContainer, OnTradeMoneyDragEnd);
             (moneyContainer.Data() as any).pID = pID;
@@ -217,8 +217,8 @@ Modlock.route("auction", (auction: AuctionState) => {
         //bidPanel.style.backgroundColor = ColorToHexCode2(Players.GetPlayerColor(bid.pID));
         $.Schedule(0, () => bidPanel.AddClass("Bid" + bid.amount));
 
-        (bidPanel.FindChildTraverse("AuctionBidAvatar") as AvatarImage).steamid = playerStates[bid.pID].steamId;
-        (bidPanel.FindChildTraverse("AuctionBidName") as UserName).steamid = playerStates[bid.pID].steamId;
+        (bidPanel.FindChildTraverse("AuctionBidAvatar") as CitadelAvatarImagePanel).steamid = playerStates[bid.pID].steamId;
+        (bidPanel.FindChildTraverse("AuctionBidName") as CitadelUserNamePanel).steamid = playerStates[bid.pID].steamId;
         (bidPanel.FindChildTraverse("AuctionBidLabel") as LabelPanel).text = locale["monopolis_auction_bid" + bid.amount];
     }
     $("#AuctionScreen").SetAttributeInt("historicalBids", bids.length);
@@ -541,7 +541,7 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
             existingPanel.AddClass(`hero_${player.heroId}`);
             (existingPanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
             (existingPanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
-            (existingPanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = player.steamId;
+            (existingPanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = player.steamId;
             (existingPanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
         if (existingTradePanel.BHasClass("Hidden")) {
@@ -549,9 +549,9 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
 
             existingTradePanel.SetHasClass("IsBot", player.connection.bot);
             existingTradePanel.AddClass(`hero_${player.heroId}`);
-            (existingTradePanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
+            (existingTradePanel.FindChildTraverse("HeroImage") as CitadelHeroImagePanel).SetHeroID(player.heroId);
             (existingTradePanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
-            (existingTradePanel.FindChildTraverse("PlayerImage") as AvatarImage).steamid = player.steamId;
+            (existingTradePanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = player.steamId;
             (existingTradePanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
 
