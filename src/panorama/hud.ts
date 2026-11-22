@@ -12,6 +12,13 @@
     $.Msg("Player0", player0)
     const playerBadge = player0?.FindChildTraverse("HeroBadge");
     $.Msg("playerBadge", playerBadge)
+    
+    const p = $.CreatePanel("Panel", $.GetContextPanel(), "VanillaTooltipWarmup");
+    p.BLoadLayout("s2r://panorama/layout/tooltips/citadel_tooltip_mod_details.vxml", false, false);
+    p.AddClass("TechMod");
+    p.style.opacity = "0.01";
+    p.style.width = "1px";
+    p.style.height = "1px";
 })();
 
 
@@ -576,6 +583,8 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
             (existingTradePanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = player.steamId;
             (existingTradePanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
+
+        existingPanel.SetHasClass("bankrupt", !player.alive);
 
 
         (existingPanel.FindChildTraverse("GoldAmount") as LabelPanel).text = player.money.toFixed(0);

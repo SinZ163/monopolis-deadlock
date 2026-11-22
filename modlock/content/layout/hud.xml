@@ -19,6 +19,10 @@
     <snippets>
         <snippet name="MoneyTableRow">
             <Panel class="PlayerContainer" hittest="false">
+                <Panel class="PlayerCardBackground" />
+                <Panel class="BankruptStamp">
+                    <Label text="BANKRUPT" />
+                </Panel>
                 <Panel class="HeroContainer">
                     <CitadelAvatarImage id="PlayerImage" hittest="false" />
                     <Panel class="HeroImageContainer">
