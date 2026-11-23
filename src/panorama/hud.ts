@@ -1,53 +1,4 @@
 (() => {
-    let parent = $.GetContextPanel().GetParent();
-    do {
-        parent = parent!.GetParent();
-    } while (parent!.type !== "CitadelHud");
-    $.Msg("Parent", parent);
-    const topbar = parent?.FindChildTraverse("TopBar");
-    $.Msg("TopBar", topbar);
-    const friendlyTeam = topbar?.FindChildTraverse("TeamFriendly");
-    $.Msg("friendly", friendlyTeam);
-    const player0 = friendlyTeam?.FindChildTraverse("TopBarPlayer0");
-    $.Msg("Player0", player0)
-    const playerBadge = player0?.FindChildTraverse("HeroBadge");
-    $.Msg("playerBadge", playerBadge)
-    
-    const p = $.CreatePanel("Panel", $.GetContextPanel(), "VanillaTooltipWarmup");
-    p.BLoadLayout("s2r://panorama/layout/tooltips/citadel_tooltip_mod_details.vxml", false, false);
-    p.AddClass("TechMod");
-    p.style.opacity = "0.01";
-    p.style.width = "1px";
-    p.style.height = "1px";
-})();
-
-
-function altDump(name:string, object: Record<string,any>) {
-    $.Msg("=====================================");
-    $.Msg("This is a giant dump in " + name);
-    $.Msg("=====================================");
-    for (var v in object) {
-        if(typeof object[v] == "object") {
-            $.Msg(v + " = {");
-            for (let w in object[v]) {
-                $.Msg("\t"+v+"." + w + " = " + (""+object[v][w]));
-            }
-            $.Msg("}");
-        } else {
-            $.Msg(name+"." + v + " = (" + typeof object[v] + ") " + object[v]);
-        }
-    }
-    $.Msg("=====================================");
-}
-
-$.RegisterForUnhandledEvent("PlaySoundEffect", (sound:any) => {
-    $.Msg("Unhandled Sound", sound);
-    $.Msg("player", $.GetContextPanel().GetAttributeString("modlock_route_player_state", "default_player"));
-    $.Msg("ui", $.GetContextPanel().GetAttributeString("modlock_route_ui_state", "default_ui"));
-    $.Msg("current_turn", $.GetContextPanel().GetAttributeString("modlock_route_current_turn", "default_current_turn"));
-});
-
-(() => {
     for (let pID of Array(6).keys()) {
         let existingPanel = $(`#MoneyTable_${pID}`);
         if (!existingPanel) {
@@ -330,7 +281,7 @@ Modlock.route("current_turn", (turnState: TurnState) => {
         $.GetContextPanel().RemoveClass(currentState);
     }
     
-    $.GetContextPanel().AddClass(turnState.type);
+    $.GetContextPanel().SwitchClass("turnType", turnState.type);
     $.GetContextPanel().SetAttributeString("currentstate", turnState.type);
 
     let currentTurn = $.GetContextPanel().GetAttributeInt("currentturn", -1);
@@ -567,24 +518,28 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
         if (existingPanel.BHasClass("Hidden")) {
             existingPanel.RemoveClass("Hidden");
             existingPanel.SetHasClass("IsBot", player.connection.bot);
-            existingPanel.AddClass(`hero_${player.heroId}`);
-            (existingPanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
-            (existingPanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
+
             (existingPanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = player.steamId;
             (existingPanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
         if (existingTradePanel.BHasClass("Hidden")) {
             existingTradePanel.RemoveClass("Hidden");
-
             existingTradePanel.SetHasClass("IsBot", player.connection.bot);
-            existingTradePanel.AddClass(`hero_${player.heroId}`);
-            (existingTradePanel.FindChildTraverse("HeroImage") as CitadelHeroImagePanel).SetHeroID(player.heroId);
-            (existingTradePanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
+
             (existingTradePanel.FindChildTraverse("PlayerImage") as CitadelAvatarImagePanel).steamid = player.steamId;
             (existingTradePanel.FindChildTraverse("PlayerName") as LabelPanel).text = player.connection.name;
         }
 
-        existingPanel.SetHasClass("bankrupt", !player.alive);
+        existingPanel.SetHasClass("bankrupt", !player.alive);        
+        existingPanel.SwitchClass("hero", `hero_${player.heroId}`);
+        existingTradePanel.SwitchClass("hero", `hero_${player.heroId}`);
+        
+        (existingPanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
+        (existingTradePanel.FindChildTraverse("HeroName") as LabelPanel).SetDialogVariableInt("hero_id", player.heroId);
+        
+        (existingPanel.FindChildTraverse("HeroImage") as unknown as any).SetHeroID(player.heroId);
+        (existingTradePanel.FindChildTraverse("HeroImage") as CitadelHeroImagePanel).SetHeroID(player.heroId);
+
 
 
         (existingPanel.FindChildTraverse("GoldAmount") as LabelPanel).text = player.money.toFixed(0);

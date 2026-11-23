@@ -1,4 +1,4 @@
-import { command, onFrame, createEntity, findEntities, fireInput, modifierState, Buttons, onStart, setFreeForAll, readField, vector, Puppet, addBot, players, Cast, entityName, entityPosition, writeField, after, onWorld, precache, hideHud, onInput } from 'modlock'
+import { command, onFrame, findEntities, onStart, addBot, players, entityName, entityPosition, writeField, after, onWorld, precache, hideHud } from 'modlock'
 import { CPointClientUIWorldPanel } from "modlock/entities";
 import { heroes } from 'modlock';
 
@@ -63,7 +63,9 @@ onFrame(frame => {
     if (frame.movement.length) {
         gamemode.OnMovement(frame.movement);
     }
-})
+    gamemode.OnFrame(frame);
+});
+
 
 let gamemode: GameMode = new GameMode();
 
@@ -83,7 +85,7 @@ command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
 
 function start() {
   for (let actor of players()) {
-      hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status"]);
+      hideHud(actor.player, ["abilities", "ammo", "levelUp", "minimap", "ownHealth", "souls", "topBar", "stats", "status", "inventory", 'crosshair', 'brokerCountdown']);
       actor.player.freeCamera({x: 325, y: -875, z: 500}, {pitch: 45, yaw: 90, roll: 0})
   }
   gamemode = new GameMode();

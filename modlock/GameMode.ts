@@ -1,4 +1,4 @@
-import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, killEntity, MovementSample, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
+import { after, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
 import { IsInToolsMode } from "./main";
@@ -101,6 +101,28 @@ export class GameMode {
             }
         }
     }
+    private lastCheck: number = -1;
+    private lastHero = new Map<number, number>();
+
+    OnFrame(frame: FrameEvent) {
+        if (frame.timeSeconds - this.lastCheck < 0.5) return;
+        this.lastCheck = frame.timeSeconds;
+        for (const { player, pawn } of pawns()) {
+            if (pawn.hero === 0) continue;               // mid-swap placeholder, wait for the real hero
+            if (this.lastHero.get(player.slot) === pawn.hero) continue;
+            this.lastHero.set(player.slot, pawn.hero);
+            const localPlayer = Object.values(this.playerState.GetAllValues()).find(ps => ps.connection.player.slot === player.slot);
+            console.log(player, pawn, JSON.stringify({...localPlayer, connection: {...localPlayer?.connection, steamId: 0}}, undefined, 4), JSON.stringify(this.lastHero, undefined, 4))
+            
+            console.log("Hero??", localPlayer?.heroId, pawn.hero);
+            if (localPlayer && localPlayer.heroId !== pawn.hero) {
+                console.log("Changing hero", localPlayer.heroId, pawn.hero);
+                localPlayer.heroId = pawn.hero;
+                this.SavePlayer(localPlayer);
+            }
+        }
+    }
+    
     private currentDecks: Record<"chance"|"communitychest", CardAction[]> = {
         chance: [...CardDeck.chance],
         communitychest: [...CardDeck.communitychest],
