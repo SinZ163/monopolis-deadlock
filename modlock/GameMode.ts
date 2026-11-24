@@ -1,4 +1,4 @@
-import { after, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, Puppet, toast, Vector, vector, WorldObject } from "modlock";
+import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, Puppet, readField, toast, Vector, vector, WorldObject } from "modlock";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
 import { IsInToolsMode } from "./main";
@@ -83,12 +83,14 @@ export class GameMode {
         let actor = this.activePuppet?.player;
         console.log("Movement for ", actor?.slot, movements);
         for (let movement of movements) {
-            console.log(movement.player.slot, actor?.slot);
             if (movement.player.slot !== actor?.slot) continue;
-            console.log(this.goPos, this.destPos, movement.position);
-            if (this.goPos && vector.distance(movement.position, this.goPos) < 100) {
+            if (this.goBounds
+                 && movement.position.x >= this.goBounds.minX
+                 && movement.position.x <= this.goBounds.maxX
+                 && movement.position.y >= this.goBounds.minY
+                 && movement.position.y <= this.goBounds.maxY)  {
                 this.FoundHeroForGold();
-                this.goPos = undefined;
+                this.goBounds = undefined;
                 this.goParticle?.remove();
                 this.goParticle = undefined;
             } 
@@ -133,7 +135,7 @@ export class GameMode {
     private destParticle: WorldObject|undefined;
     private destPos: Vector | undefined;
     private goParticle: WorldObject | undefined;
-    private goPos: Vector | undefined;
+    private goBounds: {minX: number, minY: number, maxX: number, maxY: number} | undefined;
     public activePuppet: Puppet | undefined;
 
     constructor() {
@@ -1013,17 +1015,10 @@ export class GameMode {
         if (!tile) {
             throw new Error("Tile not found");
         }
-        let middleVector = vector.at(0, 0, 0);
-        if (tileId < 10) {
-            middleVector = vector.at(70, 100, 0);
-        } else if (tileId < 20) {
-            middleVector = vector.at(70, -100, 0);
-        } else if (tileId < 30) {
-            middleVector = vector.at(-70, -100, 0);
-        } else {
-            middleVector = vector.at(-70, 100, 0);
-        }
-        return vector.add(entityPosition(tile)!.position, middleVector);
+        const pos = entityPosition(tile)!;
+        const isCorner = tileId % 10 === 0;
+        const middleOffset = isCorner ? vector.at(100, 100, 0) : vector.at(62.5, 100, 0);
+        return localToWorld(pos.position, pos.facing.yaw, middleOffset);
     }
     public SavePlayer(player: ServerPlayerState & {turnState?: TurnState}) {
         let newPlayer = {...player};
@@ -1034,6 +1029,9 @@ export class GameMode {
     public GotoJail() {
         let current = this.GetCurrentPlayerState();
 
+        this.activePuppet?.pause();
+        this.activePuppet = undefined;
+        current.connection.player.watchMovement(false);
         current.connection.player.teleport(vector.at(0,0,500), {pitch: 0, yaw: 0, roll: 0});
         CustomNetTables.SetTableValue("misc", "current_turn", {type: "endturn", pID: current.pID, rolls: current.turnState.rolls});
         current.jailed = 3;
@@ -1044,6 +1042,9 @@ export class GameMode {
         let current = this.GetCurrentPlayerState();
         let pos = this.GetStartLocationOfTile(10);
         // TODO: Make teleport pretty
+        this.activePuppet?.pause();
+        this.activePuppet = undefined;
+        current.connection.player.watchMovement(false);
         current.connection.player.teleport(vector.add(pos, vector.at(0,0,500)), {pitch: 0, yaw: 0, roll: 0});
         current.jailed = 0;
         current.location = 10;
@@ -1155,8 +1156,12 @@ export class GameMode {
 
         if (current.location > futureLocation && !backwards) {
             print("We are spawning go??");
+            let tile = findEntitiesByName("go")[0];
+            const goPos = entityPosition(tile)!;
+            const goWidth = readField(tile, "CPointClientUIWorldPanel", "m_flWidth", "float32") as number;
+            const goHeight = readField(tile, "CPointClientUIWorldPanel", "m_flHeight", "float32") as number;
             let pos = vector.add(this.GetStartLocationOfTile(0), vector.at(30, 0, 0));
-            this.goPos = pos;
+            this.goBounds = {minX: goPos.position.x, minY: goPos.position.y, maxX: goPos.position.x + goWidth, maxY: goPos.position.y + goHeight };
             this.goParticle = createParticle({
                 resource: "particles/{addon}/go-square.vpcf",
                 position: pos,
@@ -1164,52 +1169,16 @@ export class GameMode {
             })
         }
 
-        let position = this.GetStartLocationOfTile(current.location);
+        let prevPosition = this.GetStartLocationOfTile(current.location);
         let positions = [];
-        do {
-            let futureSide = Math.floor(futureLocation / 10);
-            let currentSide = Math.floor(current.location / 10);
-            // when going backwards, we need to treat corners as the previous side, not same side
-            if (backwards) {
-                futureSide = Math.floor((futureLocation - 1) / 10); // 19 - 1 = 18 / 10 = 1
-                currentSide = Math.floor((current.location - 1) / 10); // 21 - 1 = 20 / 10 = 2
-            }
-
-            let currentDelta = current.location % 10;
-            if (backwards && currentDelta === 0) {
-                currentDelta = 10;
-            }
-            let futureDelta = futureLocation % 10;
-
-            let rowAmount: number;
-            if (currentSide === futureSide) {
-                // edge case where a teleport card makes you to something behind you on same side, do the lap around
-                if (futureDelta < currentDelta && !backwards) {
-                    rowAmount = 10 - currentDelta;
-                } else {
-                    rowAmount = futureDelta - currentDelta;
-                }
-            } else if (backwards) {
-                    rowAmount = -currentDelta;
-            } else {
-                rowAmount = 10 - currentDelta;
-            }
-
-            DeepPrintTable({futureSide, currentSide, currentDelta, futureDelta, rowAmount});
-            let sameSideVector: Vector;
-            if (currentSide === 0) {
-                sameSideVector = vector.at(rowAmount * -125, 0, 0);
-            } else if (currentSide === 1) {
-                sameSideVector = vector.at(0, rowAmount * 125, 0);
-            } else if (currentSide === 2) {
-                sameSideVector = vector.at(rowAmount * 125, 0, 0);
-            } else {
-                sameSideVector = vector.at(0, rowAmount * -125, 0);
-            }
-            position = vector.add(position, sameSideVector);
+        let angles = [];
+        do {            
+            const delta = backwards ? -1 : 1;
+            current.location = (current.location + delta) % 40;
+            const position = this.GetStartLocationOfTile(current.location);
             positions.push(position);
-            current.location = (current.location + rowAmount) % 40;
-            print(current.location, futureLocation);
+            angles.push(vector.yawToward(prevPosition, position));
+            prevPosition = position;
         } while (current.location !== futureLocation);
         if (this.activePuppet) {
             this.activePuppet.pause();
@@ -1217,21 +1186,20 @@ export class GameMode {
         let currentPos = current.connection.player.pawn()!.position;
         let currentAngles = current.connection.player.pawn()!.cameraAngles;
         this.activePuppet = new Puppet(current.connection.player, {
-            stepTicks: 64,
+            stepTicks: 10,
             x: [currentPos.x, ...positions.map(pos => pos.x)],
             y: [currentPos.y, ...positions.map(pos => pos.y)],
             z: [currentPos.z, ...positions.map(pos => pos.z)],
-            // TODO: Track and correct for yaw
-            yaw: [currentAngles.yaw, ...positions.map(() => currentAngles.yaw)],
+            yaw: [currentAngles.yaw, ...angles],
         });
         console.log(this.activePuppet.track);
         this.activePuppet.play();
         this.SavePlayer(current);
-        this.destPos = position;
+        this.destPos = positions[positions.length - 1];
         this.destParticle = createParticle({
             resource: "particles/{addon}/dest-ring.vpcf",
-            position,
-            point: {index: 11, position},
+            position: positions[positions.length - 1],
+            point: {index: 11, position: positions[positions.length - 1]},
         });
         current.connection.player.watchMovement(true);
     }
