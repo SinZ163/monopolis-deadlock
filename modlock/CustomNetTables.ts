@@ -9,7 +9,6 @@ export interface CustomNetTableDeclarations {
     player_state: Record<string, ServerPlayerState>,
     misc: {
         current_turn: TurnState
-        roll_order: Record<string, PlayerID>,
         housing_market: {
             houses: number,
             hotels: number,

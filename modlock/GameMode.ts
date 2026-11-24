@@ -112,9 +112,7 @@ export class GameMode {
             if (this.lastHero.get(player.slot) === pawn.hero) continue;
             this.lastHero.set(player.slot, pawn.hero);
             const localPlayer = Object.values(this.playerState.GetAllValues()).find(ps => ps.connection.player.slot === player.slot);
-            console.log(player, pawn, JSON.stringify({...localPlayer, connection: {...localPlayer?.connection, steamId: 0}}, undefined, 4), JSON.stringify(this.lastHero, undefined, 4))
             
-            console.log("Hero??", localPlayer?.heroId, pawn.hero);
             if (localPlayer && localPlayer.heroId !== pawn.hero) {
                 console.log("Changing hero", localPlayer.heroId, pawn.hero);
                 localPlayer.heroId = pawn.hero;
@@ -316,13 +314,8 @@ export class GameMode {
             }
         }
 
-        let rollOrder = CustomNetTables.GetTableValue("misc", "roll_order");
         do {
-            let currentIndex = Object.values(rollOrder).find(pID => auctionState.current_bidder === pID);
-            if (currentIndex == null) { 
-                throw "Can't find the index :(";
-            }
-            auctionState.current_bidder = rollOrder[tostring((currentIndex + 1) % Object.keys(rollOrder).length)];
+            auctionState.current_bidder = (auctionState.current_bidder + 1) % Object.keys(auctionState.playerStates).length;
         } while(auctionState.playerStates[auctionState.current_bidder]!.hasWithdrawn);
         CustomNetTables.SetTableValue("misc", "auction", auctionState);
     }
@@ -952,10 +945,8 @@ export class GameMode {
         CustomNetTables.SetTableValue("misc", "current_turn", {pID: 0, rolls: [], type: "transition"});
         
         // TODO: Do logic to determine roll order
-        let rollOrder: Record<string, PlayerID> = {};
         for (let [index, connection] of Object.entries(players())) {
             const i = Number(index);
-            rollOrder[i] = i;
 
             let hero = connection.player.pawn();
 
@@ -979,7 +970,7 @@ export class GameMode {
                 heroId:connection.player.pawn()!.hero,
             });
         }
-        CustomNetTables.SetTableValue("misc", "roll_order", rollOrder);
+
         this.StartTurn();
     }
     private RandomiseOwnershipForTesting(): void {
@@ -1037,7 +1028,7 @@ export class GameMode {
     public SavePlayer(player: ServerPlayerState & {turnState?: TurnState}) {
         let newPlayer = {...player};
         delete newPlayer.turnState;
-        this.playerState.SetValue(tostring(player.pID), player);
+        this.playerState.SetValue(tostring(player.pID), newPlayer);
     }
 
     public GotoJail() {
@@ -1423,13 +1414,6 @@ export class GameMode {
     }
     public NextTurn() {
         let currentTurn = CustomNetTables.GetTableValue("misc", "current_turn");
-        let rollOrder = CustomNetTables.GetTableValue("misc", "roll_order");
-        console.log(rollOrder);
-        let currentIndex = Object.values(rollOrder).find(pID => currentTurn.pID === pID);
-        console.log(currentIndex);
-        if (currentIndex == null) { 
-            throw "Can't find the index :(";
-        }
         let playerStates = Object.values(this.playerState.GetAllValues()).filter(player => player.alive);
         print("Have we won yet?", playerStates.length);
         if (playerStates.length === 1) {
@@ -1437,12 +1421,11 @@ export class GameMode {
             // TODO: Replace with custom postgame as dedi servers instantly turn off when a winner is announced
             //GameRules.SetGameWinner(PlayerResource.GetPlayer(playerStates[0].pID)!.GetTeam());
         }
-        let nextIndex = currentIndex as number;
+        let nextIndex = currentTurn.pID as number;
         let nextPlayer: PlayerState;
         do {
-            nextIndex = (nextIndex + 1) % Object.keys(rollOrder).length;
-            let pID = rollOrder[tostring(nextIndex)];
-            nextPlayer = this.playerState.GetValue(tostring(pID));
+            nextIndex = (nextIndex + 1) % Object.keys(this.playerState.GetAllValues()).length;
+            nextPlayer = this.playerState.GetValue(tostring(nextIndex));
             print(nextPlayer.pID, nextPlayer.alive);
         } while (!nextPlayer.alive);
         let savedTurn: TurnState = { pID: nextPlayer.pID, rolls: [], type: "transition"};
