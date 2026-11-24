@@ -1,7 +1,9 @@
 import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, Puppet, readField, toast, Vector, vector, WorldObject } from "modlock";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
-import { IsInToolsMode } from "./main";
+import { flag } from "./flags";
+
+import "../src/common/common";
 
 const DeepPrintTable = console.log;
 const print = console.log;
@@ -143,6 +145,10 @@ export class GameMode {
         this.playerState = new LocalNetTables("player_state");
         this.miscState = new LocalNetTables("misc");
     }
+    /** True when `player` may act for `turnPlayer` (the player whose turn it is), or the tools flag is on. Not for auction bidders or trade participants. */
+    private CanActFor(player: Player, turnPlayer: { connection: { player: Player } }): boolean {
+        return flag("tools") || player.slot === turnPlayer.connection.player.slot;
+    }
     TradeEvent(player: Player, args: string): void {
         const event = JSON.parse(args) as MonopolisTradeEvent;
         // event: MonopolisTradeEvent & {PlayerID: PlayerID}
@@ -155,7 +161,7 @@ export class GameMode {
         let currentTrader = this.playerState.GetValue(tradeState.current.toFixed(0));
         let participantSet = new Set(tradeState.participants);
         if (tradeState.status === TradeStateStatus.ModifyTrade) {
-            if (!IsInToolsMode() && player.slot !== currentTrader.connection.player.slot) {return;}
+            if (!flag("tools") && player.slot !== currentTrader.connection.player.slot) {return;}
             if (event.type === "add_property") {
                 let propertyState = this.propertyOwnership.GetValue(event.property);
                 // Only allow it going from the intended owner
@@ -222,9 +228,9 @@ export class GameMode {
             const localPlayer = Object.values(this.playerState.GetAllValues()).find(ps => ps.connection.player.slot === player.slot);
             console.log(localPlayer?.pID, player.slot)
             if (!localPlayer) return;
-            if (!IsInToolsMode() && tradeState.participants.indexOf(localPlayer.pID) === -1) return;
-            // Tools only hack to force all to be "true"
-            if (IsInToolsMode() && event.type === "confirm") {
+            if (!flag("tools") && tradeState.participants.indexOf(localPlayer.pID) === -1) return;
+            // Test hack (tradeAutoConfirm): one confirm marks every participant as accepted
+            if (flag("tradeAutoConfirm") && event.type === "confirm") {
                 for (let participant of participantSet) {
                     tradeState.confirmations[participant] = true;
                 }
@@ -274,7 +280,7 @@ export class GameMode {
     }
     StartTrade(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
         // TODO: Handle the restricted trade scenarios
         if (current.turnState.type !== "endturn") return;
 
@@ -328,7 +334,7 @@ export class GameMode {
         let auctionState = CustomNetTables.GetTableValue("misc", "auction");
         DeepPrintTable(auctionState);
         const currentBidder = CustomNetTables.GetTableValue("player_state", auctionState.current_bidder.toFixed(0));
-        if (!IsInToolsMode() && currentBidder.connection.player.slot !== player.slot) return;
+        if (!flag("tools") && currentBidder.connection.player.slot !== player.slot) return;
         print("Lets play?");
         let playerState = auctionState.playerStates[auctionState.current_bidder];
         if (!playerState) {
@@ -345,7 +351,7 @@ export class GameMode {
         if (current.turnState.type !== "auction") return;
         let auctionState = CustomNetTables.GetTableValue("misc", "auction");
         let playerState = this.playerState.GetValue(tostring(auctionState.current_bidder));
-        if (!IsInToolsMode() && player.slot !== playerState.connection.player.slot) return;
+        if (!flag("tools") && player.slot !== playerState.connection.player.slot) return;
         let amount = Number.parseInt(args, 10);
         if (amount !== 10 && amount !== 50 && amount !== 100) return;
         if ((amount + auctionState.current_bid) > playerState.money) {
@@ -362,7 +368,7 @@ export class GameMode {
     }
     AcknowledgeCard(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
         if (current.turnState.type === "auxroll_result") {
             if (current.money < current.turnState.value) {
                 toast(current.connection.player, "#monopolis_broke");
@@ -458,7 +464,7 @@ export class GameMode {
     }
     DrawCard(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
         if (current.turnState.type !== "card_prompt") {return;}
         let card = this.currentDecks[current.turnState.deck].shift();
         if (!card)  {
@@ -478,7 +484,7 @@ export class GameMode {
         let current = this.GetCurrentPlayerState();
         
         // TODO: Fix
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
 
         let tile = TilesObj[event.property] as (RailroadDefinition | UtilityDefinition | PropertyDefinition);
         let propertyState = this.propertyOwnership.GetValue(tile.id);
@@ -716,7 +722,7 @@ export class GameMode {
     }
     StartAuction(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
         if (current.turnState.type !== "unowned") {return;}
 
         CustomNetTables.SetTableValue("misc", "current_turn", {type: "auction", pID: current.pID, rolls: current.turnState.rolls, property: current.turnState.property});
@@ -737,7 +743,7 @@ export class GameMode {
     
     Bankrupt(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
         if (current.turnState.type !== "payrent" && current.turnState.type !== "card_result" && current.turnState.type !== "auxroll_result") {return;}
         if (current.turnState.type === "payrent") {
             if (current.money > current.turnState.price) return;
@@ -833,7 +839,7 @@ export class GameMode {
         DeepPrintTable(current);
 
         // Anti Cheat, its just this simple
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
 
         let turnState = CustomNetTables.GetTableValue("misc", "current_turn");
         
@@ -882,7 +888,7 @@ export class GameMode {
         print("Roll Dice", current.pID);
 
         // Anti Cheat, its just this simple
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
 
         let turnState = CustomNetTables.GetTableValue("misc", "current_turn");
 
@@ -938,8 +944,7 @@ export class GameMode {
                 });
             }
         }
-        const RANDOM_TEST_OWNERSHIP = true;
-        if (RANDOM_TEST_OWNERSHIP && IsInToolsMode()) {
+        if (flag("randomOwnership")) {
             this.RandomiseOwnershipForTesting();
             //CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
             //this.miscState.SetValue("trade", {initiator: 0, current: 0, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
@@ -973,7 +978,52 @@ export class GameMode {
             });
         }
 
+        
+        if (flag("bankruptPlayer")) {
+            const alivePlayers = Object.values(this.playerState.GetAllValues()).filter(p => p.alive);
+            // Lua table iteration order is not guaranteed, so index the last slot directly.
+            const victimId = (alivePlayers)[alivePlayers.length - 1].pID;
+            if (alivePlayers.length >= 3 && victimId !== 0) {
+                const victim = this.playerState.GetValue(tostring(victimId));
+                victim.money = 0;
+                victim.alive = false;
+                this.SavePlayer(victim);
+                print("TEST auction: marked player", victimId, "as bankrupt");
+            } else {
+                print("TEST auction: need 3+ alive players to fake a bankruptcy, skipping");
+            }
+        }
+
+        if (flag("startAuction")) {
+            this.StartRandomAuctionForTesting();
+            return;
+        }
         this.StartTurn();
+    }
+    // TEMP TEST: same setup as StartAuction, minus the "unowned" turn check, on a random unowned property.
+    private StartRandomAuctionForTesting(): void {
+        const candidates = Object.values(TilesObj).filter(tile => this.IsPurchasableTile(tile) && this.propertyOwnership.GetValue(tile.id).owner === -1) as Array<PropertyDefinition|RailroadDefinition|UtilityDefinition>;
+        if (candidates.length === 0) {
+            print("TEST auction: no unowned properties, starting a normal turn");
+            this.StartTurn();
+            return;
+        }
+        const tile = candidates[Math.floor(Math.random() * candidates.length)];
+        const starter = 0;
+        print("TEST auction: auctioning", tile.id, "starting with player", starter);
+
+        CustomNetTables.SetTableValue("misc", "current_turn", {type: "auction", pID: starter, rolls: [], property: tile.id});
+        let playerStates: Partial<Record<PlayerID, AuctionPlayerState>> = {};
+        for (let player of Object.values(this.playerState.GetAllValues())) {
+            playerStates[player.pID] = {hasWithdrawn: !player.alive};
+        }
+        CustomNetTables.SetTableValue("misc", "auction", {
+            current_bid: 0,
+            current_owner: -1,
+            current_bidder: starter,
+            historical_bids: [],
+            playerStates,
+        });
     }
     private RandomiseOwnershipForTesting(): void {
         const playerCount = Object.keys(players()).length;
@@ -1092,7 +1142,7 @@ export class GameMode {
         DeepPrintTable(current);
 
         // Anti Cheat, its just this simple
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
 
         let dice1 = 1 + Math.floor(Math.random() * 6);
         let dice2 = 1 + Math.floor(Math.random() * 6);
@@ -1323,7 +1373,7 @@ export class GameMode {
         print("End Turn", current.pID);
 
         // Anti Cheat, its just this simple
-        if (!IsInToolsMode() && player.slot !== current.connection.player.slot) {return;}
+        if (!this.CanActFor(player, current)) {return;}
 
         let endturn = true;
         if (current.jailed === 0 && current.turnState.rolls.length > 0 && current.turnState.rolls.length < 3) {
