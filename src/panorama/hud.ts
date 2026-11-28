@@ -257,8 +257,79 @@ function OnPropertyChanged(tile: PurchasableTiles, value: PropertyOwnership) {
 }
 
 
+let latestTurnState: TurnState | undefined;
+let latestPlayerStates: PanoramaPlayerState = {};
+let latestUiState: UIState = { type: "n/a" };
+
+const CAP_CLASSES = [
+    "CanTrade",
+    "CanRenovateSell",
+    "CanRenovateBuy",
+    "CanBankrupt",
+    "CanPay",
+    "CanEndTurn",
+    "CanRoll",
+] as const;
+
+function setPayControlState(containerId: string, canActivate: boolean, poor: boolean) {
+    const container = $(`#${containerId}`);
+    if (!container) return;
+    container.SetHasClass("poor", poor);
+    container.enabled = canActivate;
+    for (const child of container.Children()) {
+        child.enabled = canActivate;
+    }
+}
+
+function refreshCaps() {
+    const root = $.GetContextPanel();
+    if (!latestTurnState || !latestTurnState.type) return;
+    const turnPlayer = latestPlayerStates[latestTurnState.pID];
+    if (!turnPlayer) {
+        for (const cls of CAP_CLASSES) {
+            root.RemoveClass(cls);
+        }
+        setPayControlState("PayRentButton", false, false);
+        setPayControlState("CardResultButton", false, false);
+        return;
+    }
+    const players = Object.values(latestPlayerStates);
+    const caps = allowedActions({
+        turn: latestTurnState,
+        ui: latestUiState,
+        player: turnPlayer,
+        players,
+    });
+    const debt = getDebt(latestTurnState, players);
+    const cantAfford = (!!debt && turnPlayer.money < debt.amount) ||
+        (latestTurnState.type === "jailed" && !latestTurnState.preRolled && turnPlayer.money < 50);
+    root.SetHasClass("CanTrade", caps.trade);
+    root.SetHasClass("CanRenovateSell", caps.renovateSell);
+    root.SetHasClass("CanRenovateBuy", caps.renovateBuy);
+    root.SetHasClass("CanBankrupt", caps.bankrupt);
+    root.SetHasClass("CanPay", caps.pay);
+    root.SetHasClass("CanEndTurn", caps.endTurn);
+    root.SetHasClass("CanRoll", caps.roll);
+
+    const bankruptLabel = $("#bankruptLabel") as LabelPanel;
+    if (bankruptLabel) {
+        bankruptLabel.text = locale[latestUiState.type === "bankrupt_confirm" ? "monopolis_bankrupt_confirm" : "monopolis_bankrupt"];
+    }
+    const cancelLabel = $("#cancelBankruptLabel") as LabelPanel;
+    if (cancelLabel) {
+        cancelLabel.text = locale["monopolis_cancel"];
+    }
+
+    const isRentOrJail = latestTurnState.type === "payrent" || latestTurnState.type === "jailed";
+    setPayControlState("PayRentButton", caps.pay, cantAfford && isRentOrJail);
+
+    const isCardPay = latestTurnState.type === "card_result" || latestTurnState.type === "auxroll_result";
+    setPayControlState("CardResultButton", caps.pay || caps.acknowledge, cantAfford && isCardPay);
+}
+
 Modlock.route("ui_state", (state: UIState) => {
     if (!state) return;
+    latestUiState = state;
     let currentState = $.GetContextPanel().GetAttributeString("currentuistate", "undefined");
     $.Msg("UI Listener", currentState, state);
     if (currentState !== "undefined") {
@@ -267,13 +338,14 @@ Modlock.route("ui_state", (state: UIState) => {
     let type = "UI" + state.type.replace("/", "");
     $.GetContextPanel().AddClass(type);
     $.GetContextPanel().SetAttributeString("currentuistate", type);
-
+    refreshCaps();
 });
 
 
 Modlock.route("current_turn", (turnState: TurnState) => {
     $.Msg("CurrentTurn", turnState);
     if (!turnState) return;
+    latestTurnState = turnState;
     let currentState = $.GetContextPanel().GetAttributeString("currentstate", "undefined");
     $.Msg(currentState, "|", turnState.type);
 
@@ -287,8 +359,6 @@ Modlock.route("current_turn", (turnState: TurnState) => {
     let currentTurn = $.GetContextPanel().GetAttributeInt("currentturn", -1);
     if (turnState.pID !== currentTurn) {
         $.GetContextPanel().RemoveClass("JailDice");
-        $.GetContextPanel().RemoveClass("SellStuffRequired");
-        $.GetContextPanel().RemoveClass("JailPreRolled");
         $.GetContextPanel().RemoveClass(`Turn_${currentTurn}`);
         $.GetContextPanel().AddClass(`Turn_${turnState.pID}`);
         $.GetContextPanel().SetAttributeInt("currentturn", turnState.pID);
@@ -337,15 +407,9 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             break;
         case "payrent":
             $("#payrentLabel").SetDialogVariableInt("price", turnState.price);
-            if (turnState.price > playerState.money) {
-                 $.GetContextPanel().AddClass("SellStuffRequired");
-            }
             break;
         case "jailed":
             $("#payrentLabel").SetDialogVariableInt("price", 50);
-            if (turnState.preRolled) {
-                $.GetContextPanel().AddClass("JailPreRolled");
-            }
             break;
         case "card_prompt":
             let imageUrl: string;
@@ -400,17 +464,11 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                 case "money_lose_others":
                     resultText = resultText.replaceAll("{d:value}", turnState.card.value.toFixed(0));
                     text = text.replaceAll("{d:value}", turnState.card.value.toFixed(0));
-                    if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") {
-                        let value = turnState.card.value;
-                        if (turnState.card.type === "money_lose_others") {
-                            let aliveOthers = Object.values(playerStates).filter(player => player.pID !== turnState.pID && player.alive);
-                            value = value * aliveOthers.length;
-                            resultText = resultText.replaceAll("{d:total}", value.toFixed(0));
-                            text = text.replaceAll("{d:total}", value.toFixed(0));
-                        }
-                        if (value > playerState.money) {
-                            $.GetContextPanel().AddClass("SellStuffRequired");
-                        }
+                    if (turnState.card.type === "money_lose_others") {
+                        let aliveOthers = Object.values(playerStates).filter(player => player.pID !== turnState.pID && player.alive);
+                        const value = turnState.card.value * aliveOthers.length;
+                        resultText = resultText.replaceAll("{d:total}", value.toFixed(0));
+                        text = text.replaceAll("{d:total}", value.toFixed(0));
                     }
                     break;
                 case "repairs":
@@ -430,9 +488,6 @@ Modlock.route("current_turn", (turnState: TurnState) => {
                     }
             }
             
-            if (turnState.type === "auxroll_result" && turnState.value > playerState.money) {
-                $.GetContextPanel().AddClass("SellStuffRequired");
-            }
             // TODO: Repairs!
             ($("#CardResultText") as LabelPanel).text = resultText;
             ($("#CardResultButtonText") as LabelPanel).text = text;
@@ -452,6 +507,7 @@ Modlock.route("current_turn", (turnState: TurnState) => {
             break;
     }
 
+    refreshCaps();
 });
 
 
@@ -467,6 +523,7 @@ function Auction() {
 }
 
 function PayRent() {
+    if (!$("#PayRentButton")?.enabled) return;
     $.DispatchEvent('CitadelConCommand', `monopolis_requestpayrent`);
 }
 
@@ -478,6 +535,10 @@ function Bankrupt() {
     $.DispatchEvent('CitadelConCommand', `monopolis_requestbankrupt`);
 }
 
+function CancelBankrupt() {
+    $.DispatchEvent('CitadelConCommand', `monopolis_cancelbankrupt`);
+}
+
 function StartTrade() {
     $.DispatchEvent('CitadelConCommand', `monopolis_requesttrade`);
 }
@@ -487,6 +548,7 @@ function DrawCard() {
     $.DispatchEvent('CitadelConCommand', `monopolis_requestcard`);
 }
 function AcknowledgeCard() {
+    if (!$("#CardResultButton")?.enabled) return;
     $.DispatchEvent('CitadelConCommand', `monopolis_acknowledgecard`);
 }
 
@@ -507,8 +569,7 @@ type PanoramaPlayerState = Record<string, PlayerState & { steamId: string, conne
 Modlock.route("player_state", (state: PanoramaPlayerState) => {
     $.Msg("Player state!", state);
     if (!state) return;
-
-    const turnState = JSON.parse($.GetContextPanel().GetAttributeString("modlock_route_current_turn", "{}")) as TurnState;
+    latestPlayerStates = state;
 
     for (let player of Object.values(state)) {
         const pID = player.pID;
@@ -552,28 +613,10 @@ Modlock.route("player_state", (state: PanoramaPlayerState) => {
             if (player.jailed > 0) {
                 ($("#endturnLabel") as LabelPanel).text = locale["endturn"];
             }
-            if (turnState.type === "payrent" && player.money >= turnState.price) {
-                $.GetContextPanel().RemoveClass("SellStuffRequired");
-            }
-            else if (turnState.type === "card_result") {
-                if (turnState.card.type === "money_lose" || turnState.card.type === "money_lose_others") { 
-                    let value = turnState.card.value;
-                    if (turnState.card.type === "money_lose_others") {
-                        let playerStates = Object.values(state);
-                        let aliveOthers = playerStates.filter(player => player.pID !== turnState.pID && player.alive);
-                        value = value * aliveOthers.length;
-                    }
-                    if (player.money >= value) {
-                        $.GetContextPanel().RemoveClass("SellStuffRequired");
-                    }
-                }
-            }
-            else if (turnState.type === "auxroll_result" && player.money >= turnState.value) {
-                $.GetContextPanel().RemoveClass("SellStuffRequired");
-            }
         }
 
     }
+    refreshCaps();
 });
 
 function AddHouse(tile: PurchasableTiles) {

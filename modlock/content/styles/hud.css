@@ -45,9 +45,6 @@
 .JailDice #DiceRoll {
     visibility: visible;
 }
-.jailed.JailPreRolled #RollDiceButton {
-    visibility: collapse;
-}
 
 #MoneyTable {
     vertical-align: bottom;
@@ -396,38 +393,51 @@
     opacity: 0;
 }
 
-#BankruptButton {
+#RollDiceButton,
+#PayRentButton,
+#EndturnButton,
+#StartTradeButton,
+#PropertyManagement,
+#BankruptButton,
+#CancelBankruptButton,
+#BuyHouse {
     visibility: collapse;
 }
-.SellStuffRequired #PropertyManagement,
-.SellStuffRequired #StartTradeButton,
-.SellStuffRequired #BankruptButton {
+.start.CanRoll #RollDiceButton,
+.jailed.CanRoll #RollDiceButton,
+.payrent #PayRentButton,
+.jailed #PayRentButton,
+.CanEndTurn #EndturnButton,
+.CanTrade #StartTradeButton,
+.CanRenovateSell #PropertyManagement,
+.CanRenovateBuy #BuyHouse,
+.CanBankrupt #BankruptButton,
+.UIbankrupt_confirm #BankruptButton,
+.UIbankrupt_confirm #CancelBankruptButton {
     visibility: visible;
 }
-.OnJailed,
-.OnStart,
+.UIbankrupt_confirm #PayRentButton,
+.UIbankrupt_confirm #CardResultButton,
+.UItrade #PayRentButton,
+.UItrade #CardResultButton {
+    visibility: collapse;
+}
 .OnDiceroll,
 .OnUnowned,
 .OnCardPrompt,
 .OnCardResult,
 .OnAuxRollPrompt,
 .OnAuxRollResult,
-.OnEndturn,
-.OnAuction,
-.OnPayrent {
+.OnAuction {
     visibility: collapse;
 }
-.jailed .OnJailed,
-.start .OnStart,
 .diceroll .OnDiceroll,
 .unowned .OnUnowned,
 .card_prompt .OnCardPrompt,
 .card_result .OnCardResult,
 .auxroll_prompt .OnAuxRollPrompt,
 .auxroll_result .OnAuxRollResult,
-.endturn .OnEndturn,
-.auction .OnAuction,
-.payrent .OnPayrent {
+.auction .OnAuction {
     visibility: visible;
 }
 
@@ -445,4 +455,12 @@
     wash-color: shardColor;
     margin-right: 2px;
     vertical-align: top;
+}
+/* Same red as world-panel / property-card .poor */
+.poor #payrentLabel,
+.poor #CardResultButtonText {
+    color: #ffa1a1;
+}
+.poor .inlinegold {
+    wash-color: #ffa1a1;
 }

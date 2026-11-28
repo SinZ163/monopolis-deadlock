@@ -1,4 +1,5 @@
-import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, Puppet, readField, toast, Vector, vector, WorldObject } from "modlock";
+import { after, createEntity, createModel, createParticle, entityPosition, findEntitiesByName, FrameEvent, killEntity, MovementSample, pawns, Player, players, readField, toast, Vector, vector, WorldObject } from "modlock";
+import { Puppet } from "modlock/kit";
 import CustomNetTables, { ServerPlayerState } from "./CustomNetTables";
 import LocalNetTables from "./LocalNetTables";
 import { flag } from "./flags";
@@ -67,7 +68,7 @@ function localToWorld(origin: Vector, yawDeg: number, local: Vector): Vector {
 }
 
 // The shared file is a Panorama script, not an ES module with named exports.
-const { TilesObj, TradeStateStatus } = globalThis.MonopolisCommon;
+const { TilesObj, TradeStateStatus, getDebt, allowedActions } = globalThis.MonopolisCommon;
 
 const TilesReverseLookup: Record<number,Tiles> = Object.fromEntries(Object.entries(TilesObj).map<[number, Tiles]>(val => [val[1].index, val[0] as Tiles]));
 
@@ -81,6 +82,21 @@ interface PropMapEntry {
 const PropMap: Record<Tiles, PropMapEntry> = Object.fromEntries(Object.entries(TilesObj).map(val => [val[1].id, {}])) as Record<Tiles, PropMapEntry>;
 
 export class GameMode {
+    OnDebugCommand(player: Player, arg: string): void {
+      if (!flag("tools")) {
+        return;
+      }
+      let args = arg.split(" ");
+      console.log("Debug", args);
+      if (args[0] === "money") {
+        let pID = Number(args[1]);
+        let value = Number(args[2]);
+        let playerState = this.playerState.GetValue(tostring(pID));
+        playerState.money = value;
+        console.log(`Setting player ${pID} gold to ${value}`)
+        this.SavePlayer(playerState);
+      }
+    }
     OnMovement(movements: MovementSample[]) {
         let actor = this.activePuppet?.player;
         console.log("Movement for ", actor?.slot, movements);
@@ -112,9 +128,10 @@ export class GameMode {
         if (frame.timeSeconds - this.lastCheck < 0.5) return;
         this.lastCheck = frame.timeSeconds;
         for (const { player, pawn } of pawns()) {
-            if (pawn.hero === 0) continue;               // mid-swap placeholder, wait for the real hero
             if (this.lastHero.get(player.slot) === pawn.hero) continue;
             this.lastHero.set(player.slot, pawn.hero);
+            // mid-swap placeholder, wait for the real hero
+            if (pawn.hero === 0) continue;
             const localPlayer = Object.values(this.playerState.GetAllValues()).find(ps => ps.connection.player.slot === player.slot);
             
             if (localPlayer && localPlayer.heroId !== pawn.hero) {
@@ -148,6 +165,18 @@ export class GameMode {
     /** True when `player` may act for `turnPlayer` (the player whose turn it is), or the tools flag is on. Not for auction bidders or trade participants. */
     private CanActFor(player: Player, turnPlayer: { connection: { player: Player } }): boolean {
         return flag("tools") || player.slot === turnPlayer.connection.player.slot;
+    }
+    private GetActionContext(current: ServerPlayerState & { turnState: TurnState }, uiOverride?: UIState) {
+        const ui = uiOverride ?? CustomNetTables.GetTableValue("misc", "ui_state") ?? { type: "n/a" };
+        const players = Object.values(this.playerState.GetAllValues());
+        const debt = getDebt(current.turnState, players);
+        const caps = allowedActions({
+            turn: current.turnState,
+            ui,
+            player: current,
+            players,
+        });
+        return { ui, players, debt, caps };
     }
     TradeEvent(player: Player, args: string): void {
         const event = JSON.parse(args) as MonopolisTradeEvent;
@@ -219,6 +248,9 @@ export class GameMode {
                     toast(currentTrader.connection.player, "#monopolis_trade_noparticipant");
                     return;
                 }
+                // TODO(house-rules): If a "tradeMustCoverDebt" house rule is enabled, check
+                // getDebt(current.turnState, players) here (and before applying offers) and reject
+                // trades that leave an in-debt turn player below debt.amount after tradeState.deltaMoney.
                 tradeState.status = TradeStateStatus.Confirmation;
                 tradeState.confirmations = {}
             } else if (event.type === "cancel") {
@@ -281,14 +313,11 @@ export class GameMode {
     StartTrade(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
         if (!this.CanActFor(player, current)) {return;}
-        // TODO: Handle the restricted trade scenarios
-        if (current.turnState.type !== "endturn") return;
+        const { caps } = this.GetActionContext(current);
+        if (!caps.trade) return;
 
-        let uiState = CustomNetTables.GetTableValue("misc", "ui_state");
-        if (uiState.type === "n/a") {
-            CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
-            this.miscState.SetValue("trade", {initiator: current.pID, current: current.pID, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
-        }
+        CustomNetTables.SetTableValue("misc", "ui_state", {type: "trade"});
+        this.miscState.SetValue("trade", {initiator: current.pID, current: current.pID, participants: [], offers: [], status: TradeStateStatus.ModifyTrade, confirmations: {}, deltaMoney: {}});
     }
 
     AdvanceAuctionTurn(auctionState: AuctionState) {
@@ -369,11 +398,15 @@ export class GameMode {
     AcknowledgeCard(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
         if (!this.CanActFor(player, current)) {return;}
-        if (current.turnState.type === "auxroll_result") {
-            if (current.money < current.turnState.value) {
+        if (current.turnState.type !== "auxroll_result" && current.turnState.type !== "card_result") {return;}
+        const { ui, debt, caps } = this.GetActionContext(current);
+        if (!caps.pay && !caps.acknowledge) {
+            if (debt && ui.type === "n/a") {
                 toast(current.connection.player, "#monopolis_broke");
-                return;
             }
+            return;
+        }
+        if (current.turnState.type === "auxroll_result") {
             current.money -= current.turnState.value;
             let propertyOwnership = this.propertyOwnership.GetValue(TilesReverseLookup[current.location] as PurchasableTiles);
             let owner = this.playerState.GetValue(tostring(propertyOwnership.owner));
@@ -383,7 +416,6 @@ export class GameMode {
             this.SavePlayer(owner);
             return;
         }
-        if (current.turnState.type !== "card_result") {return;}
         let card = current.turnState.card;
         switch(card.type) {
             case "jail":
@@ -408,10 +440,6 @@ export class GameMode {
                 this.SavePlayer(current);
                 break;
             case "money_lose":
-                if (current.money < card.value) {
-                    toast(current.connection.player, "#monopolis_broke");
-                    return;
-                }
                 current.money -= card.value;
                 this.SavePlayer(current);
                 break;
@@ -424,10 +452,6 @@ export class GameMode {
                     }
                 }
                 let cost = (card.value * otherPlayers.length);
-                if (current.money < cost) {
-                    toast(current.connection.player, "#monopolis_broke");
-                    return;
-                }
                 current.money -= cost;
                 for (let playerState of otherPlayers) {
                     playerState.money += card.value;
@@ -483,7 +507,6 @@ export class GameMode {
 
         let current = this.GetCurrentPlayerState();
         
-        // TODO: Fix
         if (!this.CanActFor(player, current)) {return;}
 
         let tile = TilesObj[event.property] as (RailroadDefinition | UtilityDefinition | PropertyDefinition);
@@ -492,48 +515,17 @@ export class GameMode {
         // Asserts its ownable and if it is, its the current player
         if (propertyState?.owner !== current.pID) { return; }
 
-        // only specific turn states are allowed here
-        const validTurnStates = ["payrent", "endturn", "card_result", "auxroll_result"];
-        if (!validTurnStates.includes(current.turnState.type)) return;
-        if (current.turnState.type === "payrent") {
-            // if you can afford it, you don't have access to property management
-            if (current.money > current.turnState.price) return;
-            // if you owe someone money and have access to property management, only sell, no buy
-            if (event.houseCount > propertyState.houseCount) {
-                toast(current.connection.player, "#monopolis_property_debt");
-                return;
-            }
-        }
-        if (current.turnState.type === "card_result") {
-            if (current.turnState.card.type === "money_lose" || current.turnState.card.type === "money_lose_others") {
-                // if you can afford it, you don't have access to property management
-                let value = current.turnState.card.value;
-                if (current.turnState.card.type === "money_lose_others") {
-                    let otherPlayers = [];
-                    for (let playerState of Object.values(this.playerState.GetAllValues())) {
-                        if (playerState.pID === current.pID) continue;
-                        if (playerState.alive) {
-                            otherPlayers.push(playerState);
-                        }
-                    }
-                    value = otherPlayers.length * value;
-                }
-                if (current.money > value) return;
-                // if you owe someone money and have access to property management, only sell, no buy
-                if (event.houseCount > propertyState.houseCount) {
+        const { debt, caps } = this.GetActionContext(current);
+        const isBuy = event.houseCount > propertyState.houseCount;
+        if (isBuy) {
+            if (!caps.renovateBuy) {
+                if (debt && caps.renovateSell) {
                     toast(current.connection.player, "#monopolis_property_debt");
-                    return;
                 }
-            } else { return; }
-        }
-        if (current.turnState.type === "auxroll_result") {
-            // if you can afford it, you don't have access to property management
-            if (current.money > current.turnState.value) return;
-            // if you owe someone money and have access to property management, only sell, no buy
-            if (event.houseCount > propertyState.houseCount) {
-                toast(current.connection.player, "#monopolis_property_debt");
                 return;
             }
+        } else if (!caps.renovateSell) {
+            return;
         }
 
         let commonLogicUsed = false;
@@ -744,36 +736,20 @@ export class GameMode {
     Bankrupt(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
         if (!this.CanActFor(player, current)) {return;}
-        if (current.turnState.type !== "payrent" && current.turnState.type !== "card_result" && current.turnState.type !== "auxroll_result") {return;}
-        if (current.turnState.type === "payrent") {
-            if (current.money > current.turnState.price) return;
-        }
-        else if (current.turnState.type === "card_result") {
-            if (current.turnState.card.type !== "money_lose" && current.turnState.card.type !== "money_lose_others") return;
-            let value = current.turnState.card.value;
-            if (current.turnState.card.type === "money_lose_others") {
-                let otherPlayers = [];
-                for (let playerState of Object.values(this.playerState.GetAllValues())) {
-                    if (playerState.pID === current.pID) continue;
-                    if (playerState.alive) {
-                        otherPlayers.push(playerState);
-                    }
-                }
-                value = value * otherPlayers.length;
-            }
-            if (current.money > value) return;
-        } else {
-            if (current.money > current.turnState.value) return;
-        }
+        const uiState = CustomNetTables.GetTableValue("misc", "ui_state") ?? { type: "n/a" };
+        if (uiState.type !== "n/a" && uiState.type !== "bankrupt_confirm") return;
+
+        // Evaluate debt capability as if no modal were open so the confirm click still works while
+        // ui_state === "bankrupt_confirm" (trade remains blocked above).
+        const { debt, caps } = this.GetActionContext(current, { type: "n/a" });
+        if (!caps.bankrupt || !debt) return;
         // if you made it this far, you are genuinely broke, good job
-        
-        let uiState = CustomNetTables.GetTableValue("misc", "ui_state");
+
         if (uiState.type === "n/a") {
             CustomNetTables.SetTableValue("misc", "ui_state", {type: "bankrupt_confirm"});
             return;
         }
-        if (uiState.type !== "bankrupt_confirm") return;
-        // TODO: Fuck we actually need to bankrupt them now
+        const creditor = debt.creditor;
         let propertyStates = this.propertyOwnership.GetAllValues();
         let market = CustomNetTables.GetTableValue("misc", "housing_market");
 
@@ -799,17 +775,17 @@ export class GameMode {
                     }
                 }
                 modifiedProperties.push([id, {
-                    owner: current.turnState.potentialBankrupt,
+                    owner: creditor,
                     // Mortgaged if going to other players but regular if its the bank
-                    houseCount: current.turnState.potentialBankrupt === -1 ? 0 : -1,
+                    houseCount: creditor === -1 ? 0 : -1,
                 }]);
             }
         }
         // when it isn't the bank
         // TODO: free parking house rule
         // TODO: Auction all the shit
-        if (current.turnState.potentialBankrupt !== -1) {
-            let asshole = this.playerState.GetValue(tostring(current.turnState.potentialBankrupt));
+        if (creditor !== -1) {
+            let asshole = this.playerState.GetValue(tostring(creditor));
             asshole.money += current.money;
             this.SavePlayer(asshole);
             killEntity({
@@ -833,21 +809,33 @@ export class GameMode {
         //Timers.CreateTimer(() => hero?.SetUnitCanRespawn(false));
         this.NextTurn();
     }
+    CancelBankrupt(player: Player, args: string): void {
+        const current = this.GetCurrentPlayerState();
+        if (!this.CanActFor(player, current)) {return;}
+        const ui = CustomNetTables.GetTableValue("misc", "ui_state");
+        if (ui?.type !== "bankrupt_confirm") return;
+        CustomNetTables.SetTableValue("misc", "ui_state", { type: "n/a" });
+    }
     PayRent(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        print("Roll Dice", current.pID);
+        print("Pay Rent", current.pID);
         DeepPrintTable(current);
 
         // Anti Cheat, its just this simple
         if (!this.CanActFor(player, current)) {return;}
 
         let turnState = CustomNetTables.GetTableValue("misc", "current_turn");
-        
-        if (turnState.type === "jailed") {
-            if (current.money < 50) {
+        if (turnState.type !== "jailed" && turnState.type !== "payrent") return;
+
+        const { ui, caps } = this.GetActionContext(current);
+        if (!caps.pay) {
+            if (ui.type === "n/a") {
                 toast(current.connection.player, "#monopolis_broke");
-                return;
             }
+            return;
+        }
+
+        if (turnState.type === "jailed") {
             current.money -= 50;
             this.SavePlayer(current);
             this.LeaveJail();
@@ -860,14 +848,6 @@ export class GameMode {
             } else {
                 this.StartTurn();
             }
-            return;
-        }
-
-        // this event is only available in payrent state
-        if (turnState.type !== "payrent") return;
-
-        if (current.money < turnState.price) {
-            toast(current.connection.player, "#monopolis_broke");
             return;
         }
 
@@ -885,14 +865,12 @@ export class GameMode {
     }
     PurchaseProperty(player: Player, args: string): void {
         let current = this.GetCurrentPlayerState();
-        print("Roll Dice", current.pID);
+        print("Purchase Property", current.pID);
 
         // Anti Cheat, its just this simple
         if (!this.CanActFor(player, current)) {return;}
 
         let turnState = CustomNetTables.GetTableValue("misc", "current_turn");
-
-        // this event is only available in payrent state
         if (turnState.type !== "unowned") return;
 
         let tile = TilesObj[turnState.property];
@@ -1053,10 +1031,7 @@ export class GameMode {
     public GetCurrentPlayerState() {
         const turnState = CustomNetTables.GetTableValue("misc", "current_turn");
         const playerState = this.playerState.GetValue(tostring(turnState.pID));
-        let out = {...playerState, turnState: {...turnState, rolls: turnState.rolls}};
-        if (out.turnState.type === "jailed") {
-            (out.turnState as any).preRolled = out.turnState.preRolled
-        }
+        let out = {...playerState, turnState: {...turnState}};
         return out as ServerPlayerState & {turnState: TurnState};
     }
 
@@ -1143,9 +1118,14 @@ export class GameMode {
 
         // Anti Cheat, its just this simple
         if (!this.CanActFor(player, current)) {return;}
+        const { caps } = this.GetActionContext(current);
+        if (!caps.roll) return;
 
         let dice1 = 1 + Math.floor(Math.random() * 6);
         let dice2 = 1 + Math.floor(Math.random() * 6);
+        if (flag("tools") && args.length > 0) {
+            [dice1,dice2] = args.split(" ").map(val => Number(val));
+        }
         //let dice1 = 4;
         //let dice2 = 3;
         if (current.turnState.type === "auxroll_prompt") {
@@ -1374,6 +1354,8 @@ export class GameMode {
 
         // Anti Cheat, its just this simple
         if (!this.CanActFor(player, current)) {return;}
+        const { caps } = this.GetActionContext(current);
+        if (!caps.endTurn) return;
 
         let endturn = true;
         if (current.jailed === 0 && current.turnState.rolls.length > 0 && current.turnState.rolls.length < 3) {
@@ -1431,6 +1413,10 @@ export class GameMode {
         }
     }
     public NextTurn() {
+        const uiState = CustomNetTables.GetTableValue("misc", "ui_state");
+        if (uiState?.type === "bankrupt_confirm") {
+            CustomNetTables.SetTableValue("misc", "ui_state", { type: "n/a" });
+        }
         let currentTurn = CustomNetTables.GetTableValue("misc", "current_turn");
         let playerStates = Object.values(this.playerState.GetAllValues()).filter(player => player.alive);
         print("Have we won yet?", playerStates.length);

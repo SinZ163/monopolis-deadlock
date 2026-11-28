@@ -523,6 +523,8 @@ const locale: Record<string,string> = {
     "rolldice": "Roll Dice",
     "starttrade": "Start Trade",
     "monopolis_bankrupt": "Bankrupt",
+    "monopolis_bankrupt_confirm": "Confirm bankrupt",
+    "monopolis_cancel": "Cancel",
     "drawcard": "Draw Card",
 
     "buyproperty": "Buy {s:property}",
@@ -607,11 +609,103 @@ enum TradeStateStatus {
     Finalized,
 }
 
+interface DebtInfo {
+    amount: number;
+    creditor: PlayerID; // -1 = bank
+    reason: "payrent" | "card_fee" | "auxroll" | "jail_fine" | "repairs";
+}
+
+interface ActionCaps {
+    pay: boolean;           // PayRent or payment AcknowledgeCard (and optional early jail fine)
+    acknowledge: boolean;   // non-payment card_result
+    renovateSell: boolean;  // sell houses / mortgage
+    renovateBuy: boolean;   // buy houses / unmortgage
+    trade: boolean;
+    bankrupt: boolean;
+    endTurn: boolean;
+    roll: boolean;
+}
+
+function moneyLoseAmount(turn: CardResultState, players: readonly PlayerState[]): number {
+    const card = turn.card;
+    if (card.type === "money_lose") return card.value;
+    if (card.type === "money_lose_others") {
+        const others = players.filter(ps => ps.pID !== turn.pID && ps.alive).length;
+        return card.value * others;
+    }
+    return 0;
+}
+
+function getDebt(
+    turn: TurnState,
+    players: readonly PlayerState[],
+    _properties?: Readonly<Record<string, PropertyOwnership>>,
+): DebtInfo | undefined {
+    if (turn.type === "payrent") {
+        return { amount: turn.price, creditor: turn.potentialBankrupt, reason: "payrent" };
+    }
+    if (turn.type === "auxroll_result") {
+        return { amount: turn.value, creditor: turn.potentialBankrupt, reason: "auxroll" };
+    }
+    if (turn.type === "card_result") {
+        const amount = moneyLoseAmount(turn, players);
+        if (amount > 0) return { amount, creditor: -1, reason: "card_fee" };
+        // future: repairs via _properties
+    }
+    // Mandatory jail fine only; optional early pay (!preRolled) does not force debt/bankruptcy.
+    if (turn.type === "jailed" && turn.preRolled) {
+        return { amount: 50, creditor: -1, reason: "jail_fine" };
+    }
+    return undefined;
+}
+
+function allowedActions(opts: {
+    turn: TurnState;
+    ui: UIState;
+    player: PlayerState;
+    players: readonly PlayerState[];
+    properties?: Readonly<Record<string, PropertyOwnership>>;
+}): ActionCaps {
+    const none: ActionCaps = {
+        pay: false,
+        acknowledge: false,
+        renovateSell: false,
+        renovateBuy: false,
+        trade: false,
+        bankrupt: false,
+        endTurn: false,
+        roll: false,
+    };
+    if (opts.ui.type === "trade" || opts.ui.type === "bankrupt_confirm") {
+        return none;
+    }
+
+    const debt = getDebt(opts.turn, opts.players, opts.properties);
+    const inDebt = !!debt && opts.player.money < debt.amount;
+    const canPayDebt = !!debt && opts.player.money >= debt.amount;
+    const canPayEarlyJail = opts.turn.type === "jailed" && !opts.turn.preRolled && opts.player.money >= 50;
+
+    return {
+        pay: canPayDebt || canPayEarlyJail,
+        acknowledge: opts.turn.type === "card_result" && !debt,
+        renovateSell: opts.turn.type === "endturn" || inDebt,
+        renovateBuy: opts.turn.type === "endturn" && !inDebt,
+        trade: opts.turn.type === "endturn" || inDebt,
+        bankrupt: inDebt,
+        endTurn: opts.turn.type === "endturn",
+        roll: opts.turn.type === "start" ||
+            opts.turn.type === "auxroll_prompt" ||
+            (opts.turn.type === "jailed" && !opts.turn.preRolled),
+    };
+}
+
 // Keep this file a plain script for Panorama's ordered layout includes.
 // An explicit global also survives module scoping and tree-shaking in modlock.
 declare var MonopolisCommon: {
     TilesObj: typeof TilesObj;
     locale: typeof locale;
     TradeStateStatus: typeof TradeStateStatus;
+    getDebt: typeof getDebt;
+    allowedActions: typeof allowedActions;
 };
-globalThis.MonopolisCommon = { TilesObj, locale, TradeStateStatus };
+globalThis.MonopolisCommon = { TilesObj, locale, TradeStateStatus, getDebt, allowedActions };

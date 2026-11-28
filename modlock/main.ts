@@ -8,7 +8,7 @@ import { applyArgs, describeFlags, flag, FROM_COMMAND, setFlag } from './flags';
 import "../src/common/common";
 const { TilesObj } = globalThis.MonopolisCommon;
 
-// Flags come from `modlock dev --arg ...` (see flags.ts). /flag overrides made at runtime
+// Flags come from args after `--`, e.g. `modlock dev --watch modlock -- test` (see flags.ts). /flag overrides made at runtime
 // are carried across hot reloads with handoff().
 let flagOverrides: string[] = [];
 onStart((args) => {
@@ -87,8 +87,10 @@ command("monopolis_acknowledgecard", (player, args) => gamemode.AcknowledgeCard(
 command("monopolis_auctionbid", (player, args) => gamemode.AuctionBid(player, args));
 command("monopolis_auctionwithdraw", (player, args) => gamemode.AuctionWithdraw(player, args));
 command("monopolis_requestbankrupt", (player, args) => gamemode.Bankrupt(player, args));
+command("monopolis_cancelbankrupt", (player, args) => gamemode.CancelBankrupt(player, args));
 command("monopolis_requesttrade", (player, args) => gamemode.StartTrade(player, args));
 command("monopolis_trade", (player, args) => gamemode.TradeEvent(player, args));
+command("monopolis_debug", (player, args) => gamemode.OnDebugCommand(player, args));
 
 function start() {
   for (let actor of players()) {
@@ -102,7 +104,7 @@ function start() {
 // /flag              -> list flags that differ from defaults
 // /flag name[=value] -> set one (or a preset); only works while the tools flag is on
 // /flag no-<name>    -> turn a flag off, or the flags a preset sets itself (no-auction)
-// /flag can never turn tools off; relaunch without it in --arg for that.
+// /flag can never turn tools off; relaunch without it after -- for that.
 command("flag", (player, args) => {
   if (!flag("tools")) return;
   if (args === "") { player.chat(`flags: ${describeFlags()}`); return; }

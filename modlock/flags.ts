@@ -20,7 +20,7 @@ const SPEC = {
     autoStart:          { kind: "bool", default: false, help: "Whether to auto start the game on load" },
 } as const satisfies Record<string, BoolSpec | IntSpec>;
 
-// A preset expands to more args. `test` matches the old `--arg test` behaviour.
+// A preset expands to more args. `test` matches `modlock dev --watch modlock -- test`.
 const PRESETS: Record<string, readonly string[]> = {
     test:    ["tools", "randomOwnership", "tradeAutoConfirm", "bots=5"],
     auction: ["test", "startAuction", "bankruptPlayer"],
@@ -81,7 +81,7 @@ function parseBool(raw: string | undefined): boolean | undefined {
 function assign(name: FlagName, value: number | boolean, protect: readonly FlagName[], notes: string[]): void {
     const v = values as Record<FlagName, number | boolean>;
     if (protect.indexOf(name) !== -1 && value === SPEC[name].default && v[name] !== value) {
-        notes.push(`${name} can't be turned off from /flag; relaunch without it in --arg`);
+        notes.push(`${name} can't be turned off from /flag; relaunch without it after --`);
         return;
     }
     v[name] = value;

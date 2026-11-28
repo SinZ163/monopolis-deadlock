@@ -12,7 +12,7 @@
     </styles>
 
     <Panel class="MainSpace" hittest="false">
-        <Panel id="ExampleSpace" onactivate="OnClick()">
+        <Panel id="ExampleSpace">
             <Panel id="HouseBox" />
 
             <Label id="SpaceName" text="WHITECHAPEL ROAD" />
